@@ -1,8 +1,8 @@
-# NEUMA · Human Practices in 60 seconds — NEUMIS script (v2, English)
+# NEUMA · Human Practices in 60 seconds — NEUMIS script (v3)
 
 Source: the "HP Wiki NEUMA" document (Drive), which holds the text of the wiki's Human Practices page.
-Characters: the HP team NEUMIS (from the "Diseño de Personajes iGEM" form):
-**Sus** (Susana), **Mafe** (María Fernanda), **Sal** (Salma), **Ann** (Anahí) and **VH** (Victor Hugo, instructor).
+Characters: the HP team NEUMIS (3D renders in `animacion/neumis/`):
+**Sal** (blue, camera), **Sus** (white, umbrella), **Mafe** (red, coffee and pen) and **Ann** (purple, notebook and coffee).
 
 | Time | Scene (visual) | Speaker | Line |
 |---|---|---|---|
@@ -11,7 +11,7 @@ Characters: the HP team NEUMIS (from the "Diseño de Personajes iGEM" form):
 | 14–24 s | Road to diagnosis: "little cough" → "6–12 months" → "stage IV". An hourglass drains. | Sus | "We heard the same thing again and again: lung cancer is found late. A 'little cough' nobody suspects, months of waiting…" |
 | 24–32 s | A house, a clinic, and a worker who keeps saying "tomorrow…". Nursing quote. | Ann | "…and someone who puts off the doctor because if they don't work, their family doesn't eat." |
 | 32–40 s | Iceberg: on top "People don't look after themselves" (crossed out); below "A system that fails". | Mafe | "It's not that people don't care: a system fails them long before they reach a hospital. We call this the diagnosis culture." |
-| 40–50 s | Path: risk questionnaire (1st level) → NEUMA test (2nd level) → confirmation. Patient walks with family. | VH | "That's why NEUMA is triage, not a verdict: a questionnaire screens first, and the test is ordered at the second level. The result comes with clear next steps, careful words and family by your side." |
+| 40–50 s | Path: risk questionnaire (1st level) → NEUMA test (2nd level) → confirmation. Patient walks with family. | Sal | "That's why NEUMA is triage, not a verdict: a questionnaire screens first, and the test is ordered at the second level. The result comes with clear next steps, careful words and family by your side." |
 | 50–60 s | All NEUMIS together; the logo breathes. *"We all always know something. We all ignore something. Hence, we always learn."* — Taibo | All | "This is not our final breath. Because in lung cancer, every hour counts." |
 
 ## Facts used (all from the HP document)

@@ -65,21 +65,13 @@
 const DURATION = 60;
 
 /* ---------- NEUMIS ----------
-   Traits taken from the "Diseño de Personajes iGEM" form.
-   To use a real NEUMI image, set its path in `img`
-   (e.g. "neumis/mafe.png": transparent PNG, full body, feet at bottom center)
-   and it replaces the drawing. */
+   The team's NEUMI renders live in neumis/ (transparent PNGs, cropped to the character).
+   `ar` is each image's width / height. `color` is used for the name tag and subtitle chip. */
 const CAST = {
-  Mafe: { label: "Mafe", color: "#F28B82", skin: "#E8B08A", hair: "#4A2C1E", hairStyle: "wavy",
-          moles: [[-24, -168], [38, -190]], prop: "coffee", img: null },
-  Sal:  { label: "Sal", color: "#7FD1C3", skin: "#F0C6A2", hair: "#2B1B14", hairStyle: "straight",
-          glasses: true, eye: "#2E6DB4", moles: [[44, -180]], prop: "camera", img: null },
-  Sus:  { label: "Sus", color: "#5B8FC7", skin: "#D8A07A", hair: "#2A1A12", hairStyle: "pony",
-          cap: "#1E3550", earring: true, serious: true, prop: "backpack", img: null },
-  Ann:  { label: "Ann", color: "#FFD166", skin: "#C68C64", hair: "#3A2216", hairStyle: "curly",
-          glasses: true, prop: "notebook", img: null },
-  VH:   { label: "VH", color: "#8EC5E8", skin: "#D3A07B", hair: "#1F1510", hairStyle: "short",
-          cap: "#33414E", glasses: true, widePants: true, prop: "guitar", img: null },
+  Mafe: { label: "Mafe", color: "#E8574B", img: "neumis/mafe.png", ar: 1.234 },
+  Sal:  { label: "Sal",  color: "#9EC3E6", img: "neumis/sal.png",  ar: 1.04 },
+  Sus:  { label: "Sus",  color: "#D9C6E6", img: "neumis/sus.png",  ar: 1.003 },
+  Ann:  { label: "Ann",  color: "#B7A6F0", img: "neumis/ann.png",  ar: 1.385 },
 };
 const EXTRAS = {
   worker:  { color: "#9AA5B1", skin: "#C99572", hair: "#2A1A12", hairStyle: "short", hardhat: true },
@@ -96,8 +88,8 @@ const LINES = [
   { who: "Ann",  a: 24.3, b: 31.8, text: "…and someone who puts off the doctor because if they don’t work, their family doesn’t eat." },
   { who: "Mafe", a: 32.3, b: 36.4, text: "It’s not that people don’t care: a system fails them long before they reach a hospital." },
   { who: "Mafe", a: 36.5, b: 39.8, text: "We call this the diagnosis culture." },
-  { who: "VH",   a: 40.3, b: 44.9, text: "That’s why NEUMA is triage, not a verdict: a questionnaire screens first, and the test is ordered at the second level." },
-  { who: "VH",   a: 45.0, b: 49.8, text: "The result comes with clear next steps, careful words and family by your side." },
+  { who: "Sal",  a: 40.3, b: 44.9, text: "That’s why NEUMA is triage, not a verdict: a questionnaire screens first, and the test is ordered at the second level." },
+  { who: "Sal",  a: 45.0, b: 49.8, text: "The result comes with clear next steps, careful words and family by your side." },
   { who: "All", a: 50.3, b: 56.8, text: "This is not our final breath. Because in lung cancer, every hour counts." },
 ];
 
@@ -126,7 +118,9 @@ function neumi(c, x, y, s, t, o = {}) {
   let g = `<g transform="translate(${x},${y + hop * s}) scale(${flip ? -s : s},${s})" opacity="${op}">`;
   g += `<ellipse cx="0" cy="4" rx="78" ry="13" fill="#000" opacity=".16"/>`;
   if (c.img) {
-    g += `<image href="${c.img}" x="-160" y="-340" width="320" height="340" preserveAspectRatio="xMidYMax meet" transform="scale(1,${breath})"/>`;
+    const H = 330, W = H * c.ar;
+    const tilt = talk ? 3 * Math.sin(t * 7 + seed) : wave ? 6 * Math.sin(t * 8 + seed) : 1.5 * Math.sin(t * 1.3 + seed);
+    g += `<g transform="rotate(${tilt}) scale(${1 + 0.01 * Math.sin(t * 2.2 + seed)},${breath})"><image href="${c.img}" x="${-W / 2}" y="${-H}" width="${W}" height="${H}"/></g>`;
   } else {
     g += `<g transform="scale(1,${breath})">`;
     // behind the body
@@ -237,7 +231,7 @@ const DEFS = `<defs>
 </defs>`;
 
 /* ---------- scenes ---------- */
-const ROW = [["Sal", 360], ["Sus", 660], ["Mafe", 960], ["Ann", 1260], ["VH", 1560]];
+const ROW = [["Sal", 450], ["Sus", 790], ["Mafe", 1130], ["Ann", 1470]];
 
 const SCENES = [
   { a: 0, b: 6, draw(t) { // 1. NEUMA breathes
@@ -251,7 +245,7 @@ const SCENES = [
     s += `<g transform="translate(960,${wy}) scale(${ws})"><text x="0" y="0" font-family="Fredoka" font-weight="700" font-size="150" fill="#FFF7EC" text-anchor="middle">${spans}</text></g>`;
     s += txt(960, lerp(770, 535, up), "iGEM Puebla 2026 · Human Practices", { size: 38, fill: "#8EC5E8", opacity: seg(t, 1.6, 2.2) });
     ROW.forEach(([k, x], i) => { const p = popIn(t, 2.9 + i * .18, .55);
-      s += neumi(CAST[k], x, 820 + (1 - p.p) * 80, .85, t, { talk: speaking(k, t) && t < 6, op: p.op, seed: i, tag: CAST[k].label }); });
+      s += neumi(CAST[k], x, 830 + (1 - p.p) * 80, .78, t, { talk: speaking(k, t) && t < 6, op: p.op, seed: i, tag: CAST[k].label }); });
     return s;
   }},
   { a: 6, b: 14, draw(t) { // 2. 25 interviews
@@ -276,7 +270,7 @@ const SCENES = [
       s += personIcon(x, y, .9, on ? (i % 2 ? "#F28B82" : "#2F6FA8") : "#C9DCEA");
     }
     s += txt(960, 480, "July 2–28, 2026", { size: 30, fill: "#4C6A88", opacity: seg(t, 10.6, 11.2) });
-    s += neumi(CAST.Sal, 960, 830, 1.1, t, { talk: speaking("Sal", t), seed: 1, tag: "Sal" });
+    s += neumi(CAST.Sal, 960, 830, 1.0, t, { talk: speaking("Sal", t), seed: 1, tag: "Sal" });
     for (const ft of [11.6, 12.7]) { const k = seg(t, ft, ft + .35); if (k > 0 && k < 1) s += `<rect width="1920" height="1080" fill="#fff" opacity="${(1 - k) * .55}"/>`; }
     return s;
   }},
@@ -340,7 +334,7 @@ const SCENES = [
       ${txt(960, 118, "“I feel sick, but I’ll go tomorrow because I have to work;", { size: 30, fill: "#0E2A47", weight: 800 })}
       ${txt(960, 158, "otherwise, what will my family eat?”", { size: 30, fill: "#0E2A47", weight: 800 })}
       ${txt(960, 192, "— Nursing, HGZ No. 20", { size: 22, fill: "#8A6A3E" })}</g>`;
-    s += neumi(CAST.Ann, 1700, 830, 1.0, t, { talk: speaking("Ann", t), seed: 3, tag: "Ann" });
+    s += neumi(CAST.Ann, 1650, 830, 1.0, t, { talk: speaking("Ann", t), seed: 3, tag: "Ann" });
     return s;
   }},
   { a: 32, b: 40, draw(t) { // 5. Iceberg
@@ -398,7 +392,7 @@ const SCENES = [
       ${txt(0, -42, "The result comes with:", { size: 30, family: "Fredoka", fill: "#E36B6B" })}
       ${txt(0, 0, (t > 45.8 ? "✓ clear next steps  " : "") + (t > 46.5 ? "✓ careful words" : ""), { size: 30, fill: "#0E2A47", weight: 800 })}
       ${txt(0, 44, t > 47.2 ? "✓ emotional support  ✓ family by your side" : "", { size: 28, fill: "#0E2A47", weight: 800 })}</g>`;
-    s += neumi(CAST.VH, 1700, 830, 1.0, t, { talk: speaking("VH", t), seed: 8, tag: "VH" });
+    s += neumi(CAST.Sal, 1690, 830, .95, t, { talk: speaking("Sal", t), seed: 8, tag: "Sal" });
     return s;
   }},
   { a: 50, b: 60, draw(t) { // 7. Not our final breath

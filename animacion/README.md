@@ -6,9 +6,9 @@
 
 Script: `../script_HP_NEUMIS.md` (content from the "HP Wiki NEUMA" document).
 
-## Swap in the real NEUMIS
-In `index.html`, inside `CAST`, set `img` to the PNG path (transparent background, full body),
-e.g. `img: "neumis/mafe.png"`, save the image in `animacion/neumis/`, and re-export.
+## NEUMIS
+The character renders are in `animacion/neumis/` (sal, sus, mafe, ann). To replace one, overwrite its PNG
+(transparent background, cropped to the character), update its `ar` (width / height) in `CAST` in `index.html`, and re-export.
 
 ## Swap in the wiki colors
 The provisional colors are at the top of `<style>` (`:root`) and in each NEUMI's `color` in `CAST`.
