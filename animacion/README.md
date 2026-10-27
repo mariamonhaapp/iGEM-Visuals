@@ -10,5 +10,7 @@ Script: `../script_HP_NEUMIS.md` (content from the "HP Wiki NEUMA" document).
 The character renders are in `animacion/neumis/` (sal, sus, mafe, ann). To replace one, overwrite its PNG
 (transparent background, cropped to the character), update its `ar` (width / height) in `CAST` in `index.html`, and re-export.
 
-## Swap in the wiki colors
-The provisional colors are at the top of `<style>` (`:root`) and in each NEUMI's `color` in `CAST`.
+## Brand
+- Logo: `animacion/logo.png` (iGEM Puebla).
+- Palette: #59181E, #732231, #750E1E, #152340, #1D2C40, #001A3B, #014040, #FDAF36, #F2EED8, #EDE9C2 (listed in `:root` in `index.html`).
+- Typography: Bebas Neue (titles, names) and Source Sans Pro Bold (subtitles, body), in `animacion/fonts/`.

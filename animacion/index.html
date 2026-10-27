@@ -10,34 +10,36 @@
   @font-face { font-family: "Source Sans Pro"; font-weight: 700; src: url(fonts/source-sans-pro-latin-700-normal.woff2) format("woff2"); }
   @font-face { font-family: "Source Sans Pro"; font-weight: 700; src: url(fonts/source-sans-pro-latin-ext-700-normal.woff2) format("woff2"); unicode-range: U+0100-024F, U+1E00-1EFF; }
 
-  /* Provisional palette: replace with the wiki colors */
+    /* NEUMA palette */
   :root {
-    --navy: #0E2A47;
-    --blue: #2F6FA8;
-    --sky: #8EC5E8;
-    --mint: #7FD1C3;
-    --coral: #F28B82;
-    --yellow: #FFD166;
-    --cream: #FFF7EC;
-    --ink: #13233A;
+    --maroon-dark: #59181E;
+    --maroon: #732231;
+    --crimson: #750E1E;
+    --navy: #152340;
+    --navy-2: #1D2C40;
+    --navy-deep: #001A3B;
+    --teal: #014040;
+    --amber: #FDAF36;
+    --cream: #F2EED8;
+    --cream-2: #EDE9C2;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; background: #0a1626; color: #fff; font-family: "Source Sans Pro", sans-serif; }
+  html, body { margin: 0; height: 100%; background: #000F24; color: #fff; font-family: "Source Sans Pro", sans-serif; }
   body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; }
   #wrap { width: min(100%, calc((100vh - 110px) * 16 / 9)); aspect-ratio: 16 / 9; position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
   #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; background: var(--navy); overflow: hidden; }
   #stage svg { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; }
   #subs { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); width: 1560px; display: flex; align-items: flex-start; gap: 22px;
-          background: rgba(10, 26, 46, .86); border-radius: 30px; padding: 22px 34px; transition: none; }
+          background: rgba(0, 26, 59, .92); border: 3px solid rgba(242, 238, 216, .35); border-radius: 30px; padding: 22px 34px; transition: none; }
   #subs.hidden { opacity: 0; }
-  #who { flex: 0 0 auto; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 40px; letter-spacing: 1px; color: var(--ink); padding: 4px 20px 0; border-radius: 999px; margin-top: 4px; }
+  #who { flex: 0 0 auto; font-family: "Bebas Neue", sans-serif; font-weight: 400; font-size: 40px; letter-spacing: 1px; color: var(--navy-deep); padding: 4px 20px 0; border-radius: 999px; margin-top: 4px; }
   #line { font-size: 42px; line-height: 1.28; font-weight: 700; color: #fff; min-height: 54px; }
   #line .ghost { color: transparent; }
   #controls { display: flex; align-items: center; gap: 12px; width: min(100%, 900px); }
-  #controls button { font: 700 16px "Source Sans Pro", sans-serif; background: #1d3a5c; color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; }
-  #controls button:hover { background: #2a527f; }
-  #scrub { flex: 1; accent-color: #F28B82; }
-  #time { font: 700 15px "Source Sans Pro", sans-serif; min-width: 92px; text-align: right; color: #c9d8e8; }
+  #controls button { font: 700 16px "Source Sans Pro", sans-serif; background: #1D2C40; color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; }
+  #controls button:hover { background: #152340; }
+  #scrub { flex: 1; accent-color: #FDAF36; }
+  #time { font: 700 15px "Source Sans Pro", sans-serif; min-width: 92px; text-align: right; color: #EDE9C2; }
   body.capture { padding: 0; background: #000; }
   body.capture #controls { display: none; }
   body.capture #wrap { width: 1920px; border-radius: 0; box-shadow: none; }
@@ -72,8 +74,8 @@ const CAST = {
 };
 const EXTRAS = {
   worker:  { color: "#9AA5B1", skin: "#C99572", hair: "#2A1A12", hairStyle: "short", hardhat: true },
-  patient: { color: "#B8A1E3", skin: "#D9A47F", hair: "#6B6B6B", hairStyle: "short" },
-  family:  { color: "#F4A261", skin: "#C68C64", hair: "#2B1B14", hairStyle: "straight" },
+  patient: { color: "#732231", skin: "#D9A47F", hair: "#6B6B6B", hairStyle: "short" },
+  family:  { color: "#FDAF36", skin: "#C68C64", hair: "#2B1B14", hairStyle: "straight" },
 };
 
 /* ---------- Dialogue (from script_HP_NEUMIS.md) ---------- */
@@ -123,7 +125,7 @@ function neumi(c, x, y, s, t, o = {}) {
     g += `<g transform="scale(1,${breath})">`;
     // behind the body
     if (c.prop === "backpack") g += `<rect x="-82" y="-150" width="164" height="118" rx="36" fill="#E07A5F"/><rect x="-82" y="-110" width="164" height="22" fill="#C8654C"/>`;
-    if (c.prop === "guitar") g += `<g transform="rotate(-28)"><rect x="50" y="-330" width="16" height="190" rx="6" fill="#7A4A26"/><ellipse cx="58" cy="-110" rx="46" ry="58" fill="#C8874A"/><circle cx="58" cy="-110" r="14" fill="#5A341A"/></g>`;
+    if (c.prop === "guitar") g += `<g transform="rotate(-28)"><rect x="50" y="-330" width="16" height="190" rx="6" fill="#59181E"/><ellipse cx="58" cy="-110" rx="46" ry="58" fill="#C8874A"/><circle cx="58" cy="-110" r="14" fill="#5A341A"/></g>`;
     if (c.hairStyle === "wavy") g += `<path d="M-98 -230 Q-118 -170 -98 -128 Q-84 -108 -66 -126 Q-56 -110 -40 -124 L40 -124 Q56 -110 66 -126 Q84 -108 98 -128 Q118 -170 98 -230 Z" fill="${c.hair}"/>`;
     if (c.hairStyle === "straight") g += `<path d="M-96 -230 L-100 -132 L100 -132 L96 -230 Z" fill="${c.hair}"/>`;
     if (c.hairStyle === "pony") g += `<ellipse cx="96" cy="-180" rx="24" ry="52" fill="${c.hair}" transform="rotate(16 96 -180)"/>`;
@@ -136,7 +138,7 @@ function neumi(c, x, y, s, t, o = {}) {
     g += `<rect x="-62" y="-134" width="124" height="106" rx="42" fill="${c.color}"/>`;
     g += `<path d="M-18 -132 L0 -112 L18 -132" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="6" stroke-linecap="round"/>`;
     if (c.prop === "backpack") g += `<path d="M-46 -128 L-40 -60 M46 -128 L40 -60" stroke="#C8654C" stroke-width="12" stroke-linecap="round"/>`;
-    if (c.hardhat) g += `<rect x="-62" y="-90" width="124" height="12" fill="#FFD166" opacity=".8"/>`;
+    if (c.hardhat) g += `<rect x="-62" y="-90" width="124" height="12" fill="#FDAF36" opacity=".8"/>`;
     // arms
     const wa = wave ? Math.sin(t * 9 + seed) * 18 : 0;
     const rh = wave ? [92, -205 + wa] : [78, -66];
@@ -145,20 +147,20 @@ function neumi(c, x, y, s, t, o = {}) {
     g += `<path d="M-54 -116 Q-76 -96 ${lh[0]} ${lh[1]}" fill="none" stroke="${c.color}" stroke-width="24" stroke-linecap="round"/>`;
     g += `<path d="M54 -116 Q${wave ? 96 : 76} ${wave ? -150 : -96} ${rh[0]} ${rh[1]}" fill="none" stroke="${c.color}" stroke-width="24" stroke-linecap="round"/>`;
     // props in hand
-    if (c.prop === "notebook") g += `<g transform="rotate(-12 -60 -96)"><rect x="-96" y="-128" width="58" height="72" rx="6" fill="#FFF7EC" stroke="#3A2216" stroke-width="3"/><path d="M-88 -110 H-46 M-88 -96 H-46 M-88 -82 H-54" stroke="#9BB" stroke-width="3"/></g>`;
+    if (c.prop === "notebook") g += `<g transform="rotate(-12 -60 -96)"><rect x="-96" y="-128" width="58" height="72" rx="6" fill="#F2EED8" stroke="#3A2216" stroke-width="3"/><path d="M-88 -110 H-46 M-88 -96 H-46 M-88 -82 H-54" stroke="#9BB" stroke-width="3"/></g>`;
     g += `<circle cx="${lh[0]}" cy="${lh[1]}" r="14" fill="${c.skin}"/><circle cx="${rh[0]}" cy="${rh[1]}" r="14" fill="${c.skin}"/>`;
     if (c.prop === "coffee" && !wave) {
-      g += `<rect x="64" y="-96" width="36" height="42" rx="7" fill="#fff"/><rect x="64" y="-84" width="36" height="12" fill="#F28B82"/><path d="M100 -86 q14 4 0 18" fill="none" stroke="#fff" stroke-width="5"/>`;
+      g += `<rect x="64" y="-96" width="36" height="42" rx="7" fill="#fff"/><rect x="64" y="-84" width="36" height="12" fill="#732231"/><path d="M100 -86 q14 4 0 18" fill="none" stroke="#fff" stroke-width="5"/>`;
       for (let i = 0; i < 2; i++) { const k = (t * 0.8 + i * .5) % 1; g += `<path d="M${76 + i * 12} ${-104 - k * 30} q6 -8 0 -16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="${(1 - k) * .7}"/>`; }
     }
     if (c.prop === "camera") g += `<rect x="-36" y="-118" width="72" height="48" rx="10" fill="#22303F"/><circle cx="0" cy="-94" r="16" fill="#5C7A99" stroke="#0E1A26" stroke-width="5"/><rect x="18" y="-126" width="14" height="9" rx="3" fill="#22303F"/>`;
     // head
     g += `<circle cx="-86" cy="-208" r="16" fill="${c.skin}"/><circle cx="86" cy="-208" r="16" fill="${c.skin}"/>`;
     g += `<circle cx="0" cy="-215" r="88" fill="${c.skin}"/>`;
-    if (c.earring) g += `<circle cx="90" cy="-190" r="6" fill="#F2C14E"/>`;
+    if (c.earring) g += `<circle cx="90" cy="-190" r="6" fill="#FDAF36"/>`;
     // front hair / cap
     if (c.cap || c.hardhat) {
-      const capc = c.hardhat ? "#FFD166" : c.cap;
+      const capc = c.hardhat ? "#FDAF36" : c.cap;
       g += `<path d="M-92 -232 Q-90 -318 0 -318 Q90 -318 92 -232 Z" fill="${capc}"/><ellipse cx="0" cy="-232" rx="104" ry="15" fill="${capc}"/><ellipse cx="0" cy="-236" rx="104" ry="8" fill="#000" opacity=".12"/>`;
       if (!c.hardhat) g += `<circle cx="0" cy="-314" r="7" fill="${capc}"/>`;
     } else if (c.hairStyle === "curly") {
@@ -185,21 +187,15 @@ function neumi(c, x, y, s, t, o = {}) {
   g += `</g>`;
   if (tag) {
     const w = 30 + tag.length * 22;
-    g += `<g opacity="${op}"><rect x="${x - w / 2}" y="${y + 14}" width="${w}" height="42" rx="21" fill="${c.color}"/>${txt(x, y + 14 + 31, tag, { size: 28, family: "Bebas Neue", fill: "#13233A" })}</g>`;
+    g += `<g opacity="${op}"><rect x="${x - w / 2}" y="${y + 14}" width="${w}" height="42" rx="21" fill="${c.color}"/>${txt(x, y + 14 + 31, tag, { size: 28, family: "Bebas Neue", fill: "#001A3B" })}</g>`;
   }
   return g;
 }
 
 /* ---------- graphic elements ---------- */
-function lungs(cx, cy, s, t, op = 1) {
-  const b = 1 + 0.06 * Math.sin(t * Math.PI * 2 / 3.2);
-  const lobe = `M-14 -58 C-62 -70 -112 -8 -106 62 C-100 112 -40 112 -22 80 C-12 50 -12 0 -14 -58 Z`;
-  return `<g transform="translate(${cx},${cy}) scale(${s * b})" opacity="${op}">
-    <rect x="-9" y="-112" width="18" height="70" rx="9" fill="#FFF7EC"/>
-    <path d="${lobe}" fill="url(#lungL)"/>
-    <path d="${lobe}" fill="url(#lungR)" transform="scale(-1,1)"/>
-    <path d="M0 -46 Q-20 -30 -46 0 M-30 -18 Q-52 -14 -66 10 M0 -46 Q20 -30 46 0 M30 -18 Q52 -14 66 10" fill="none" stroke="#FFF7EC" stroke-width="6" stroke-linecap="round" opacity=".85"/>
-  </g>`;
+function logo(cx, cy, s, t, op = 1) {
+  const d = 230 * s * (1 + 0.035 * Math.sin(t * Math.PI * 2 / 3.2));
+  return `<image href="logo.png" x="${cx - d / 2}" y="${cy - d / 2}" width="${d}" height="${d}" opacity="${op}"/>`;
 }
 function particles(t, n, color, op) {
   let s = "";
@@ -211,7 +207,7 @@ function particles(t, n, color, op) {
   }
   return s;
 }
-function card(x, y, w, h, fill = "#fff", op = 1, extra = "") {
+function card(x, y, w, h, fill = "#FFFDF3", op = 1, extra = "") {
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="26" fill="${fill}" opacity="${op}" ${extra}/>`;
 }
 function popIn(t, a, d = .5) { const p = seg(t, a, a + d); return { p, s: back(p), op: clamp(p * 1.6) }; }
@@ -220,12 +216,10 @@ function personIcon(x, y, s, fill) {
 }
 
 const DEFS = `<defs>
-  <linearGradient id="lungL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7A6A0"/><stop offset="1" stop-color="#E36B6B"/></linearGradient>
-  <linearGradient id="lungR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FD3F0"/><stop offset="1" stop-color="#4F95CF"/></linearGradient>
-  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E2A47"/><stop offset="1" stop-color="#1F4E7A"/></linearGradient>
-  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4C8DC4"/><stop offset="1" stop-color="#0E2A47"/></linearGradient>
-  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE8F7"/><stop offset="1" stop-color="#F3FAFF"/></linearGradient>
-  <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE3C7"/><stop offset="1" stop-color="#FFF7EC"/></linearGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#001A3B"/><stop offset="1" stop-color="#152340"/></linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1D2C40"/><stop offset="1" stop-color="#001A3B"/></linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDE9C2"/><stop offset="1" stop-color="#F2EED8"/></linearGradient>
+  <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDE9C2"/><stop offset="1" stop-color="#F2EED8"/></linearGradient>
 </defs>`;
 
 /* ---------- scenes ---------- */
@@ -233,52 +227,52 @@ const ROW = [["Sal", 450], ["Sus", 790], ["Mafe", 1130], ["Ann", 1470]];
 
 const SCENES = [
   { a: 0, b: 6, draw(t) { // 1. NEUMA breathes
-    let s = `<rect width="1920" height="1080" fill="url(#night)"/>` + particles(t, 26, "#8EC5E8", .12);
+    let s = `<rect width="1920" height="1080" fill="url(#night)"/>` + particles(t, 26, "#EDE9C2", .12);
     const up = ease(seg(t, 2.4, 3.4));
-    s += lungs(960, lerp(420, 230, up), lerp(1.7, 1.05, up), t, clamp(t / .6));
+    s += logo(960, lerp(400, 210, up), lerp(1.6, 1.0, up), t, clamp(t / .6));
     const word = "NEUMA";
     let spans = "";
     for (let i = 0; i < word.length; i++) spans += `<tspan opacity="${popIn(t, .5 + i * .16, .45).op}">${word[i]}</tspan>`;
     const wy = lerp(700, 470, up), ws = 0.9 + 0.1 * back(seg(t, .5, 1.6));
-    s += `<g transform="translate(960,${wy}) scale(${ws})"><text x="0" y="0" font-family="Bebas Neue" font-weight="400" font-size="190" letter-spacing="6" fill="#FFF7EC" text-anchor="middle">${spans}</text></g>`;
-    s += txt(960, lerp(770, 535, up), "iGEM Puebla 2026 · Human Practices", { size: 38, fill: "#8EC5E8", opacity: seg(t, 1.6, 2.2) });
+    s += `<g transform="translate(960,${wy}) scale(${ws})"><text x="0" y="0" font-family="Bebas Neue" font-weight="400" font-size="190" letter-spacing="6" fill="#F2EED8" text-anchor="middle">${spans}</text></g>`;
+    s += txt(960, lerp(770, 535, up), "iGEM Puebla 2026 · Human Practices", { size: 38, fill: "#EDE9C2", opacity: seg(t, 1.6, 2.2) });
     ROW.forEach(([k, x], i) => { const p = popIn(t, 2.9 + i * .18, .55);
       s += neumi(CAST[k], x, 830 + (1 - p.p) * 80, .78, t, { talk: speaking(k, t) && t < 6, op: p.op, seed: i, tag: CAST[k].label }); });
     return s;
   }},
   { a: 6, b: 14, draw(t) { // 2. 25 interviews
-    let s = `<rect width="1920" height="1080" fill="url(#sky)"/><rect y="760" width="1920" height="320" fill="#DCEBF5"/>`;
-    for (const [bx, name1, name2, col] of [[60, "HGZ No. 20", "“La Margarita” · IMSS", "#2F6FA8"], [1480, "Regional Hospital", "ISSSTE Puebla", "#1F7A6E"]]) {
+    let s = `<rect width="1920" height="1080" fill="url(#sky)"/><rect y="760" width="1920" height="320" fill="#E4DFBF"/>`;
+    for (const [bx, name1, name2, col] of [[60, "HGZ No. 20", "“La Margarita” · IMSS", "#152340"], [1480, "Regional Hospital", "ISSSTE Puebla", "#014040"]]) {
       const p = popIn(t, bx < 900 ? 6.6 : 7.0, .6);
       s += `<g opacity="${p.op}" transform="translate(${bx + 190},760) scale(${p.s}) translate(${-bx - 190},-760)">
-        <rect x="${bx}" y="330" width="380" height="430" rx="18" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>
+        <rect x="${bx}" y="330" width="380" height="430" rx="18" fill="#FFFDF3" stroke="#D6D0A8" stroke-width="4"/>
         <rect x="${bx}" y="330" width="380" height="96" rx="18" fill="${col}"/>
         ${txt(bx + 190, 372, name1, { size: 32, family: "Bebas Neue" })}${txt(bx + 190, 410, name2, { size: 26 })}
-        ${[0, 1, 2].map(r => [0, 1, 2].map(c2 => `<rect x="${bx + 40 + c2 * 110}" y="${460 + r * 80}" width="80" height="54" rx="8" fill="#CFE6F7"/>`).join("")).join("")}
+        ${[0, 1, 2].map(r => [0, 1, 2].map(c2 => `<rect x="${bx + 40 + c2 * 110}" y="${460 + r * 80}" width="80" height="54" rx="8" fill="#E4DFBF"/>`).join("")).join("")}
         <rect x="${bx + 150}" y="690" width="80" height="70" rx="8" fill="${col}" opacity=".8"/>
-        <path d="M${bx + 335} 350 h0" /><g transform="translate(${bx + 340},280)"><rect x="-26" y="-8" width="52" height="16" rx="4" fill="#E36B6B"/><rect x="-8" y="-26" width="16" height="52" rx="4" fill="#E36B6B"/></g>
+        <path d="M${bx + 335} 350 h0" /><g transform="translate(${bx + 340},280)"><rect x="-26" y="-8" width="52" height="16" rx="4" fill="#750E1E"/><rect x="-8" y="-26" width="16" height="52" rx="4" fill="#750E1E"/></g>
       </g>`;
     }
     const n = Math.round(25 * ease(seg(t, 7.2, 10.6)));
-    s += `<g opacity="${seg(t, 7, 7.4)}">${txt(960, 210, String(n), { size: 170, family: "Bebas Neue", fill: "#0E2A47" })}${txt(960, 268, "clinical specialists interviewed", { size: 40, fill: "#2F6FA8" })}</g>`;
+    s += `<g opacity="${seg(t, 7, 7.4)}">${txt(960, 210, String(n), { size: 170, family: "Bebas Neue", fill: "#001A3B" })}${txt(960, 268, "clinical specialists interviewed", { size: 40, fill: "#152340" })}</g>`;
     for (let i = 0; i < 25; i++) {
       const row = i < 13 ? 0 : 1, col = row ? i - 13 : i, cols = row ? 12 : 13;
       const x = 960 - (cols - 1) * 26 + col * 52, y = 340 + row * 62;
       const on = i < n;
-      s += personIcon(x, y, .9, on ? (i % 2 ? "#F28B82" : "#2F6FA8") : "#C9DCEA");
+      s += personIcon(x, y, .9, on ? (i % 2 ? "#732231" : "#152340") : "#D6D0A8");
     }
-    s += txt(960, 480, "July 2–28, 2026", { size: 30, fill: "#4C6A88", opacity: seg(t, 10.6, 11.2) });
+    s += txt(960, 480, "July 2–28, 2026", { size: 30, fill: "#1D2C40", opacity: seg(t, 10.6, 11.2) });
     s += neumi(CAST.Sal, 960, 830, 1.0, t, { talk: speaking("Sal", t), seed: 1, tag: "Sal" });
     for (const ft of [11.6, 12.7]) { const k = seg(t, ft, ft + .35); if (k > 0 && k < 1) s += `<rect width="1920" height="1080" fill="#fff" opacity="${(1 - k) * .55}"/>`; }
     return s;
   }},
   { a: 14, b: 24, draw(t) { // 3. Found late
-    let s = `<rect width="1920" height="1080" fill="#FFF7EC"/>` + particles(t, 14, "#F28B82", .08);
-    s += txt(960, 120, "The road to diagnosis", { size: 64, family: "Bebas Neue", fill: "#0E2A47", opacity: seg(t, 14.2, 14.7) });
+    let s = `<rect width="1920" height="1080" fill="#F2EED8"/>` + particles(t, 14, "#732231", .06);
+    s += txt(960, 120, "The road to diagnosis", { size: 64, family: "Bebas Neue", fill: "#001A3B", opacity: seg(t, 14.2, 14.7) });
     const x0 = 360, x1 = 1560, ly = 300;
-    s += `<line x1="${x0}" y1="${ly}" x2="${lerp(x0, x1, ease(seg(t, 14.6, 15.4)))}" y2="${ly}" stroke="#BFD0DF" stroke-width="14" stroke-linecap="round"/>`;
+    s += `<line x1="${x0}" y1="${ly}" x2="${lerp(x0, x1, ease(seg(t, 14.6, 15.4)))}" y2="${ly}" stroke="#D6D0A8" stroke-width="14" stroke-linecap="round"/>`;
     const prog = ease(seg(t, 15.4, 22.4));
-    s += `<line x1="${x0}" y1="${ly}" x2="${lerp(x0, x1, prog)}" y2="${ly}" stroke="#F28B82" stroke-width="14" stroke-linecap="round"/>`;
+    s += `<line x1="${x0}" y1="${ly}" x2="${lerp(x0, x1, prog)}" y2="${ly}" stroke="#732231" stroke-width="14" stroke-linecap="round"/>`;
     const ms = [
       [x0, 15.6, "“It’s just a little cough”", "a symptom brushed off", "cough"],
       [960, 18.2, "6–12 months", "to reach pulmonology", "clock"],
@@ -287,127 +281,127 @@ const SCENES = [
     for (const [mx, at, h1, h2, ic] of ms) {
       const p = popIn(t, at, .5);
       s += `<g opacity="${p.op}" transform="translate(${mx},${ly}) scale(${p.s})">
-        <circle r="44" fill="${ic === "alert" ? "#E36B6B" : "#2F6FA8"}"/>
+        <circle r="44" fill="${ic === "alert" ? "#750E1E" : "#152340"}"/>
         ${ic === "cough" ? `<path d="M-20 4 q-8 -22 12 -22 q6 -12 20 -2 q16 -2 12 14 q8 14 -10 16 h-26 q-14 0 -8 -6z" fill="#fff"/>` : ""}
         ${ic === "clock" ? `<circle r="24" fill="none" stroke="#fff" stroke-width="6"/><path d="M0 -14 V0 L10 8" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>` : ""}
         ${ic === "alert" ? `<path d="M0 -24 L24 18 H-24 Z" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><path d="M0 -8 V6" stroke="#fff" stroke-width="6" stroke-linecap="round"/>` : ""}
-        ${card(-210, 70, 420, 120, "#fff", 1, `stroke="#E5D8C6" stroke-width="3"`)}
-        ${txt(0, 122, h1, { size: 34, family: "Bebas Neue", fill: "#0E2A47" })}${txt(0, 166, h2, { size: 26, fill: "#5A6B7D" })}
+        ${card(-210, 70, 420, 120, "#FFFDF3", 1, `stroke="#D6D0A8" stroke-width="3"`)}
+        ${txt(0, 122, h1, { size: 34, family: "Bebas Neue", fill: "#001A3B" })}${txt(0, 166, h2, { size: 26, fill: "#1D2C40" })}
       </g>`;
     }
     // hourglass
     const hp = seg(t, 15, 23.5), hx = 1500, hy = 690;
     s += `<g transform="translate(${hx},${hy})" opacity="${seg(t, 15, 15.5)}">
-      <rect x="-80" y="-150" width="160" height="16" rx="8" fill="#7A4A26"/><rect x="-80" y="134" width="160" height="16" rx="8" fill="#7A4A26"/>
-      <path d="M-62 -134 L62 -134 L8 0 L62 134 L-62 134 L-8 0 Z" fill="#fff" fill-opacity=".7" stroke="#9BB4C9" stroke-width="5"/>
-      <path d="M${-50 * (1 - hp)} ${-118 + 110 * hp} L${50 * (1 - hp)} ${-118 + 110 * hp} L0 -6 Z" fill="#F2C14E"/>
-      <path d="M-54 128 L54 128 L${30 * hp} ${128 - 100 * hp} L${-30 * hp} ${128 - 100 * hp} Z" fill="#F2C14E" opacity="${hp > .02 ? 1 : 0}"/>
-      ${hp < 1 ? `<line x1="0" y1="0" x2="0" y2="${128 - 100 * hp}" stroke="#F2C14E" stroke-width="5"/>` : ""}
+      <rect x="-80" y="-150" width="160" height="16" rx="8" fill="#59181E"/><rect x="-80" y="134" width="160" height="16" rx="8" fill="#59181E"/>
+      <path d="M-62 -134 L62 -134 L8 0 L62 134 L-62 134 L-8 0 Z" fill="#fff" fill-opacity=".7" stroke="#1D2C40" stroke-width="5"/>
+      <path d="M${-50 * (1 - hp)} ${-118 + 110 * hp} L${50 * (1 - hp)} ${-118 + 110 * hp} L0 -6 Z" fill="#FDAF36"/>
+      <path d="M-54 128 L54 128 L${30 * hp} ${128 - 100 * hp} L${-30 * hp} ${128 - 100 * hp} Z" fill="#FDAF36" opacity="${hp > .02 ? 1 : 0}"/>
+      ${hp < 1 ? `<line x1="0" y1="0" x2="0" y2="${128 - 100 * hp}" stroke="#FDAF36" stroke-width="5"/>` : ""}
     </g>`;
-    s += txt(1500, 900, "in lung cancer, every hour counts", { size: 26, fill: "#8A6A3E", opacity: seg(t, 21.5, 22.2) });
+    s += txt(1500, 900, "in lung cancer, every hour counts", { size: 26, fill: "#732231", opacity: seg(t, 21.5, 22.2) });
     s += neumi(CAST.Sus, 420, 830, 1.05, t, { talk: speaking("Sus", t), seed: 2, tag: "Sus" });
     return s;
   }},
   { a: 24, b: 32, draw(t) { // 4. The family
-    let s = `<rect width="1920" height="1080" fill="url(#dusk)"/><rect y="760" width="1920" height="320" fill="#F1E2CC"/>`;
+    let s = `<rect width="1920" height="1080" fill="url(#dusk)"/><rect y="760" width="1920" height="320" fill="#E4DFBF"/>`;
     // house
-    s += `<g opacity="${seg(t, 24, 24.5)}"><path d="M150 430 L380 270 L610 430 Z" fill="#E36B6B"/><rect x="180" y="430" width="400" height="330" fill="#FFF" stroke="#E5D8C6" stroke-width="4"/>
-      <rect x="230" y="480" width="150" height="120" rx="10" fill="#FFE29A"/><rect x="440" y="560" width="90" height="200" rx="8" fill="#B5835A"/>
-      ${personIcon(275, 590, 1.3, "#F4A261")}${personIcon(335, 590, 1, "#B8A1E3")}</g>`;
-    s += txt(380, 820, "the family depends on their income", { size: 28, fill: "#8A6A3E", opacity: seg(t, 25, 25.6) });
+    s += `<g opacity="${seg(t, 24, 24.5)}"><path d="M150 430 L380 270 L610 430 Z" fill="#750E1E"/><rect x="180" y="430" width="400" height="330" fill="#FFF" stroke="#D6D0A8" stroke-width="4"/>
+      <rect x="230" y="480" width="150" height="120" rx="10" fill="#FDAF36"/><rect x="440" y="560" width="90" height="200" rx="8" fill="#59181E"/>
+      ${personIcon(275, 590, 1.3, "#014040")}${personIcon(335, 590, 1, "#732231")}</g>`;
+    s += txt(380, 820, "the family depends on their income", { size: 28, fill: "#732231", opacity: seg(t, 25, 25.6) });
     // clinic
-    s += `<g opacity="${seg(t, 24.3, 24.8)}"><rect x="1100" y="380" width="340" height="380" rx="14" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>
-      <rect x="1100" y="380" width="340" height="80" rx="14" fill="#2F6FA8"/>${txt(1270, 432, "Clinic", { size: 36, family: "Bebas Neue" })}
-      <g transform="translate(1270,560)"><rect x="-40" y="-13" width="80" height="26" rx="6" fill="#E36B6B"/><rect x="-13" y="-40" width="26" height="80" rx="6" fill="#E36B6B"/></g>
-      <rect x="1225" y="660" width="90" height="100" rx="6" fill="#9FC3E0"/></g>`;
+    s += `<g opacity="${seg(t, 24.3, 24.8)}"><rect x="1100" y="380" width="340" height="380" rx="14" fill="#FFFDF3" stroke="#D6D0A8" stroke-width="4"/>
+      <rect x="1100" y="380" width="340" height="80" rx="14" fill="#152340"/>${txt(1270, 432, "Clinic", { size: 36, family: "Bebas Neue" })}
+      <g transform="translate(1270,560)"><rect x="-40" y="-13" width="80" height="26" rx="6" fill="#750E1E"/><rect x="-13" y="-40" width="26" height="80" rx="6" fill="#750E1E"/></g>
+      <rect x="1225" y="660" width="90" height="100" rx="6" fill="#D6D0A8"/></g>`;
     // repeated "tomorrow"
     ["tomorrow…", "tomorrow…", "tomorrow…"].forEach((w, i) => { const p = popIn(t, 26.5 + i * .9, .4);
-      s += `<g opacity="${p.op * (t > 30.8 ? .5 : 1)}" transform="translate(${1270 + (i - 1) * 130},${330 - i * 40}) scale(${p.s}) rotate(${(i - 1) * 6})">${card(-80, -32, 160, 56, "#fff")}${txt(0, 6, w, { size: 28, fill: "#E36B6B" })}</g>`; });
+      s += `<g opacity="${p.op * (t > 30.8 ? .5 : 1)}" transform="translate(${1270 + (i - 1) * 130},${330 - i * 40}) scale(${p.s}) rotate(${(i - 1) * 6})">${card(-80, -32, 160, 56, "#FFFDF3")}${txt(0, 6, w, { size: 28, fill: "#750E1E" })}</g>`; });
     // worker walking away from the clinic
     const wx = lerp(980, 760, ease(seg(t, 26, 30)));
     s += neumi(EXTRAS.worker, wx, 830, .8, t, { walk: t > 26 && t < 30, flip: true, seed: 5 });
     // nursing quote
     const qp = popIn(t, 24.8, .6);
-    s += `<g opacity="${qp.op}">${card(560, 60, 800, 150, "#fff", .96, `stroke="#F2C9B8" stroke-width="3"`)}
-      ${txt(960, 118, "“I feel sick, but I’ll go tomorrow because I have to work;", { size: 30, fill: "#0E2A47" })}
-      ${txt(960, 158, "otherwise, what will my family eat?”", { size: 30, fill: "#0E2A47" })}
-      ${txt(960, 192, "— Nursing, HGZ No. 20", { size: 22, fill: "#8A6A3E" })}</g>`;
+    s += `<g opacity="${qp.op}">${card(560, 60, 800, 150, "#FFFDF3", .96, `stroke="#D6D0A8" stroke-width="3"`)}
+      ${txt(960, 118, "“I feel sick, but I’ll go tomorrow because I have to work;", { size: 30, fill: "#001A3B" })}
+      ${txt(960, 158, "otherwise, what will my family eat?”", { size: 30, fill: "#001A3B" })}
+      ${txt(960, 192, "— Nursing, HGZ No. 20", { size: 22, fill: "#732231" })}</g>`;
     s += neumi(CAST.Ann, 1650, 830, 1.0, t, { talk: speaking("Ann", t), seed: 3, tag: "Ann" });
     return s;
   }},
   { a: 32, b: 40, draw(t) { // 5. Iceberg
     const wl = 440;
     let s = `<rect width="1920" height="1080" fill="url(#sky)"/>`;
-    s += `<path d="M880 ${wl + 2} L945 340 L992 372 L1046 286 L1120 ${wl + 2} Z" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>`;
+    s += `<path d="M880 ${wl + 2} L945 340 L992 372 L1046 286 L1120 ${wl + 2} Z" fill="#FFFDF3" stroke="#D6D0A8" stroke-width="4"/>`;
     let wave = `M0 ${wl}`; for (let x = 0; x <= 1920; x += 40) wave += ` L${x} ${wl + 6 * Math.sin(x / 90 + t * 2)}`; wave += ` L1920 1080 L0 1080 Z`;
     s += `<path d="${wave}" fill="url(#sea)"/>`;
-    s += `<path d="M760 ${wl + 8} L1250 ${wl + 8} L1440 650 L1350 880 L1000 960 L640 870 L560 650 Z" fill="#CFE9F7" opacity=".9"/>`;
+    s += `<path d="M760 ${wl + 8} L1250 ${wl + 8} L1440 650 L1350 880 L1000 960 L640 870 L560 650 Z" fill="#F2EED8" opacity=".92"/>`;
     // surface
     const tp = popIn(t, 32.6, .5);
-    s += `<g opacity="${tp.op}">${card(690, 168, 620, 70, "#fff", 1, `stroke="#BFD6E8" stroke-width="3"`)}${txt(1000, 214, "“People don’t look after themselves”", { size: 34, fill: "#0E2A47" })}
-      ${txt(1000, 150, "what you see", { size: 24, fill: "#4C6A88" })}</g>`;
+    s += `<g opacity="${tp.op}">${card(690, 168, 620, 70, "#FFFDF3", 1, `stroke="#D6D0A8" stroke-width="3"`)}${txt(1000, 214, "“People don’t look after themselves”", { size: 34, fill: "#001A3B" })}
+      ${txt(1000, 150, "what you see", { size: 24, fill: "#1D2C40" })}</g>`;
     const st = ease(seg(t, 35, 35.8));
-    if (st > 0) s += `<line x1="710" y1="204" x2="${lerp(710, 1290, st)}" y2="204" stroke="#E36B6B" stroke-width="8" stroke-linecap="round"/>`;
+    if (st > 0) s += `<line x1="710" y1="204" x2="${lerp(710, 1290, st)}" y2="204" stroke="#750E1E" stroke-width="8" stroke-linecap="round"/>`;
     // underwater
     const items = [[760, 560, "Appointments months away"], [1240, 560, "Tests that take weeks"], [700, 720, "Costs for the family"], [1300, 720, "No early detection program"]];
     items.forEach(([x, y, w], i) => { const p = popIn(t, 33.2 + i * .55, .45);
-      s += `<g opacity="${p.op}" transform="translate(${x},${y}) scale(${p.s})">${card(-215, -34, 430, 64, "#0E2A47", .85)}${txt(0, 10, w, { size: 30 })}</g>`; });
+      s += `<g opacity="${p.op}" transform="translate(${x},${y}) scale(${p.s})">${card(-215, -34, 430, 64, "#001A3B", .85)}${txt(0, 10, w, { size: 30 })}</g>`; });
     const cp = popIn(t, 35.6, .6);
-    s += `<g opacity="${cp.op}" transform="translate(1000,850) scale(${cp.s})">${card(-260, -46, 520, 84, "#E36B6B")}${txt(0, 12, "A system that fails", { size: 44, family: "Bebas Neue" })}</g>`;
+    s += `<g opacity="${cp.op}" transform="translate(1000,850) scale(${cp.s})">${card(-260, -46, 520, 84, "#750E1E")}${txt(0, 12, "A system that fails", { size: 44, family: "Bebas Neue" })}</g>`;
     // banner
     const bp = popIn(t, 37.2, .6);
-    s += `<g opacity="${bp.op}" transform="translate(1580,110) scale(${bp.s})">${card(-280, -56, 560, 104, "#0E2A47")}${txt(0, 14, "Diagnosis culture", { size: 46, family: "Bebas Neue", fill: "#FFD166" })}</g>`;
-    s += txt(1580, 200, "beliefs, expectations and routines", { size: 26, fill: "#2F6FA8", opacity: bp.op });
+    s += `<g opacity="${bp.op}" transform="translate(1580,110) scale(${bp.s})">${card(-280, -56, 560, 104, "#001A3B")}${txt(0, 14, "Diagnosis culture", { size: 46, family: "Bebas Neue", fill: "#FDAF36" })}</g>`;
+    s += txt(1580, 200, "beliefs, expectations and routines", { size: 26, fill: "#152340", opacity: bp.op });
     // Mafe on an ice floe
     const fy = wl + 4 * Math.sin(t * 2);
-    s += `<ellipse cx="260" cy="${fy + 6}" rx="170" ry="26" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>`;
+    s += `<ellipse cx="260" cy="${fy + 6}" rx="170" ry="26" fill="#FFFDF3" stroke="#D6D0A8" stroke-width="4"/>`;
     s += neumi(CAST.Mafe, 260, fy, .8, t, { talk: speaking("Mafe", t), seed: 4 });
     return s;
   }},
   { a: 40, b: 50, draw(t) { // 6. Triage, not a verdict
-    let s = `<rect width="1920" height="1080" fill="#EAF7F3"/>` + particles(t, 14, "#7FD1C3", .14);
+    let s = `<rect width="1920" height="1080" fill="#F2EED8"/>` + particles(t, 14, "#014040", .08);
     const bp = popIn(t, 40.2, .5);
-    s += `<g opacity="${bp.op}" transform="translate(560,110) scale(${bp.s})">${card(-330, -56, 660, 104, "#0E2A47")}${txt(0, 16, "Triage, not a verdict", { size: 52, family: "Bebas Neue", fill: "#7FD1C3" })}</g>`;
+    s += `<g opacity="${bp.op}" transform="translate(560,110) scale(${bp.s})">${card(-330, -56, 660, 104, "#001A3B")}${txt(0, 16, "Triage, not a verdict", { size: 52, family: "Bebas Neue", fill: "#FDAF36" })}</g>`;
     const nodes = [[330, 40.8, "Risk questionnaire", "1st level", "clip"], [800, 42.0, "NEUMA test", "2nd level", "lungs"], [1270, 43.2, "Confirmation", "biopsy & imaging", "check"]];
-    s += `<line x1="330" y1="430" x2="${lerp(330, 1270, ease(seg(t, 40.8, 43.6)))}" y2="430" stroke="#7FD1C3" stroke-width="16" stroke-dasharray="2 30" stroke-linecap="round"/>`;
+    s += `<line x1="330" y1="430" x2="${lerp(330, 1270, ease(seg(t, 40.8, 43.6)))}" y2="430" stroke="#014040" stroke-width="16" stroke-dasharray="2 30" stroke-linecap="round"/>`;
     for (const [x, at, h1, h2, ic] of nodes) {
       const p = popIn(t, at, .5);
-      s += `<g opacity="${p.op}" transform="translate(${x},430) scale(${p.s})"><circle r="96" fill="#fff" stroke="${ic === "lungs" ? "#F28B82" : "#2F6FA8"}" stroke-width="10"/>
-        ${ic === "clip" ? `<rect x="-34" y="-46" width="68" height="88" rx="10" fill="#2F6FA8"/><rect x="-18" y="-54" width="36" height="16" rx="6" fill="#0E2A47"/><path d="M-20 -16 H20 M-20 4 H20 M-20 24 H8" stroke="#fff" stroke-width="6" stroke-linecap="round"/>` : ""}
-        ${ic === "check" ? `<path d="M-36 2 L-10 28 L38 -24" fill="none" stroke="#2F6FA8" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
-        ${txt(0, 150, h1, { size: 34, family: "Bebas Neue", fill: "#0E2A47" })}${txt(0, 190, h2, { size: 28, fill: "#4C6A88" })}</g>`;
-      if (ic === "lungs" && p.op > 0) s += lungs(800, 440, .55 * p.s, t, p.op);
+      s += `<g opacity="${p.op}" transform="translate(${x},430) scale(${p.s})"><circle r="96" fill="#FFFDF3" stroke="${ic === "lungs" ? "#732231" : "#152340"}" stroke-width="10"/>
+        ${ic === "clip" ? `<rect x="-34" y="-46" width="68" height="88" rx="10" fill="#014040"/><rect x="-18" y="-54" width="36" height="16" rx="6" fill="#001A3B"/><path d="M-20 -16 H20 M-20 4 H20 M-20 24 H8" stroke="#fff" stroke-width="6" stroke-linecap="round"/>` : ""}
+        ${ic === "check" ? `<path d="M-36 2 L-10 28 L38 -24" fill="none" stroke="#014040" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
+        ${txt(0, 150, h1, { size: 34, family: "Bebas Neue", fill: "#001A3B" })}${txt(0, 190, h2, { size: 28, fill: "#1D2C40" })}</g>`;
+      if (ic === "lungs" && p.op > 0) s += logo(800, 430, .74 * p.s, t, p.op);
     }
     // patient and relative walking
     const pp = ease(seg(t, 43.6, 48.4));
     const px = lerp(150, 1270, pp), walking = t > 43.6 && t < 48.4;
-    s += `<rect x="120" y="808" width="1260" height="14" rx="7" fill="#CFE9E2" opacity="${seg(t, 43.2, 43.6)}"/>`;
+    s += `<rect x="120" y="808" width="1260" height="14" rx="7" fill="#D6D0A8" opacity="${seg(t, 43.2, 43.6)}"/>`;
     s += neumi(EXTRAS.family, px - 95, 810, .48, t, { walk: walking, seed: 7, op: seg(t, 43.2, 43.6) });
     s += neumi(EXTRAS.patient, px, 810, .55, t, { walk: walking, seed: 6, op: seg(t, 43.2, 43.6) });
     // result comes with...
     const rp = popIn(t, 45.2, .6);
-    s += `<g opacity="${rp.op}" transform="translate(1250,200) scale(${rp.s})">${card(-340, -96, 680, 168, "#fff", 1, `stroke="#F28B82" stroke-width="4"`)}
-      ${txt(0, -42, "The result comes with:", { size: 30, family: "Bebas Neue", fill: "#E36B6B" })}
-      ${txt(0, 0, (t > 45.8 ? "✓ clear next steps  " : "") + (t > 46.5 ? "✓ careful words" : ""), { size: 30, fill: "#0E2A47" })}
-      ${txt(0, 44, t > 47.2 ? "✓ emotional support  ✓ family by your side" : "", { size: 28, fill: "#0E2A47" })}</g>`;
+    s += `<g opacity="${rp.op}" transform="translate(1250,200) scale(${rp.s})">${card(-340, -96, 680, 168, "#FFFDF3", 1, `stroke="#732231" stroke-width="4"`)}
+      ${txt(0, -42, "The result comes with:", { size: 30, family: "Bebas Neue", fill: "#750E1E" })}
+      ${txt(0, 0, (t > 45.8 ? "✓ clear next steps  " : "") + (t > 46.5 ? "✓ careful words" : ""), { size: 30, fill: "#001A3B" })}
+      ${txt(0, 44, t > 47.2 ? "✓ emotional support  ✓ family by your side" : "", { size: 28, fill: "#001A3B" })}</g>`;
     s += neumi(CAST.Sal, 1690, 830, .95, t, { talk: speaking("Sal", t), seed: 8, tag: "Sal" });
     return s;
   }},
   { a: 50, b: 60, draw(t) { // 7. Not our final breath
-    let s = `<rect width="1920" height="1080" fill="url(#night)"/>` + particles(t, 34, "#8EC5E8", .13);
-    s += lungs(960, 270, 1.15, t, seg(t, 50, 50.6));
-    s += txt(960, 470, "“We all always know something. We all ignore something.", { size: 40, fill: "#FFF7EC", opacity: seg(t, 51, 51.8) });
-    s += txt(960, 522, "Hence, we always learn.” — Taibo (2011)", { size: 40, fill: "#FFF7EC", opacity: seg(t, 51.6, 52.4) });
+    let s = `<rect width="1920" height="1080" fill="url(#night)"/>` + particles(t, 34, "#EDE9C2", .13);
+    s += logo(960, 250, 1.15, t, seg(t, 50, 50.6));
+    s += txt(960, 470, "“We all always know something. We all ignore something.", { size: 40, fill: "#F2EED8", opacity: seg(t, 51, 51.8) });
+    s += txt(960, 522, "Hence, we always learn.” — Taibo (2011)", { size: 40, fill: "#F2EED8", opacity: seg(t, 51.6, 52.4) });
     ROW.forEach(([k, x], i) => { const p = popIn(t, 50.2 + i * .12, .5);
       s += neumi(CAST[k], x, 830, .82, t, { talk: speaking(k, t), wave: t > 57, op: p.op * (1 - seg(t, 57, 57.6)), seed: i, tag: CAST[k].label }); });
     // closing
     const e = seg(t, 57, 57.8);
     if (e > 0) {
-      s += `<rect width="1920" height="1080" fill="#0E2A47" opacity="${e}"/>`;
-      s += lungs(960, 330, 1.0 * back(e), t, e);
-      s += txt(960, 560, "NEUMA", { size: 140, family: "Bebas Neue", fill: "#FFF7EC", opacity: e });
-      s += txt(960, 630, "iGEM Puebla 2026 · Human Practices", { size: 40, fill: "#8EC5E8", opacity: seg(t, 57.4, 58) });
-      s += txt(960, 720, "In lung cancer, every hour counts.", { size: 44, fill: "#FFD166", opacity: seg(t, 58, 58.6) });
+      s += `<rect width="1920" height="1080" fill="#001A3B" opacity="${e}"/>`;
+      s += logo(960, 300, 1.2 * back(e), t, e);
+      s += txt(960, 560, "NEUMA", { size: 140, family: "Bebas Neue", fill: "#F2EED8", opacity: e });
+      s += txt(960, 630, "iGEM Puebla 2026 · Human Practices", { size: 40, fill: "#EDE9C2", opacity: seg(t, 57.4, 58) });
+      s += txt(960, 720, "In lung cancer, every hour counts.", { size: 44, fill: "#FDAF36", opacity: seg(t, 58, 58.6) });
     }
     return s;
   }},
@@ -429,7 +423,7 @@ function renderAt(t) {
   if (l) {
     const p = clamp((t - l.a) / Math.max(1.2, (l.b - l.a) * .55));
     const n = Math.round(l.text.length * p);
-    const col = l.who === "All" ? "#FFD166" : CAST[l.who].color;
+    const col = l.who === "All" ? "#FDAF36" : CAST[l.who].color;
     who.textContent = l.who; who.style.background = col;
     line.innerHTML = esc(l.text.slice(0, n)) + `<span class="ghost">${esc(l.text.slice(n))}</span>`;
     subs.classList.remove("hidden");
