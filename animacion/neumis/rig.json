@@ -1,0 +1,93 @@
+{
+  "sal": {
+    "w": 919,
+    "h": 884,
+    "body": "neumis/sal_body.png",
+    "arms": [
+      {
+        "src": "neumis/sal_arm0.png",
+        "px": 700,
+        "py": 232
+      },
+      {
+        "src": "neumis/sal_arm1.png",
+        "px": 128,
+        "py": 565
+      }
+    ],
+    "screen": {
+      "cx": 312.1,
+      "cy": 330.7,
+      "w": 433.3,
+      "h": 287.6,
+      "angle": -26.6
+    }
+  },
+  "mafe": {
+    "w": 1017,
+    "h": 824,
+    "body": "neumis/mafe_body.png",
+    "arms": [
+      {
+        "src": "neumis/mafe_arm0.png",
+        "px": 288,
+        "py": 470
+      },
+      {
+        "src": "neumis/mafe_arm1.png",
+        "px": 872,
+        "py": 232
+      }
+    ],
+    "screen": {
+      "cx": 627.0,
+      "cy": 268.3,
+      "w": 374.8,
+      "h": 264.9,
+      "angle": -20.7
+    }
+  },
+  "ann": {
+    "w": 1015,
+    "h": 733,
+    "body": "neumis/ann_body.png",
+    "arms": [
+      {
+        "src": "neumis/ann_arm0.png",
+        "px": 282,
+        "py": 238
+      },
+      {
+        "src": "neumis/ann_arm1.png",
+        "px": 812,
+        "py": 422
+      }
+    ],
+    "screen": {
+      "cx": 591.8,
+      "cy": 305.1,
+      "w": 367.9,
+      "h": 241.1,
+      "angle": 18.6
+    }
+  },
+  "sus": {
+    "w": 941,
+    "h": 938,
+    "body": "neumis/sus_body.png",
+    "arms": [
+      {
+        "src": "neumis/sus_arm0.png",
+        "px": 160,
+        "py": 560
+      }
+    ],
+    "screen": {
+      "cx": 409.2,
+      "cy": 516.1,
+      "w": 331.2,
+      "h": 213.3,
+      "angle": 3.0
+    }
+  }
+}

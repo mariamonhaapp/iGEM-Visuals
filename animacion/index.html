@@ -64,13 +64,15 @@
 const DURATION = 60;
 
 /* ---------- NEUMIS ----------
-   The team's NEUMI renders live in neumis/ (transparent PNGs, cropped to the character).
-   `ar` is each image's width / height. `color` is used for the name tag and subtitle chip. */
+   The NEUMI renders are split into layers by tools/rig.py (body without arms or face, one layer per arm).
+   RIG is that script's rig.json: image size, screen geometry and shoulder pivots, in source pixels.
+   The face on each screen is redrawn here so it can blink and talk. */
+const RIG = {"sal":{"w":919,"h":884,"body":"neumis/sal_body.png","arms":[{"src":"neumis/sal_arm0.png","px":700,"py":232},{"src":"neumis/sal_arm1.png","px":128,"py":565}],"screen":{"cx":312.1,"cy":330.7,"w":433.3,"h":287.6,"angle":-26.6}},"mafe":{"w":1017,"h":824,"body":"neumis/mafe_body.png","arms":[{"src":"neumis/mafe_arm0.png","px":288,"py":470},{"src":"neumis/mafe_arm1.png","px":872,"py":232}],"screen":{"cx":627.0,"cy":268.3,"w":374.8,"h":264.9,"angle":-20.7}},"ann":{"w":1015,"h":733,"body":"neumis/ann_body.png","arms":[{"src":"neumis/ann_arm0.png","px":282,"py":238},{"src":"neumis/ann_arm1.png","px":812,"py":422}],"screen":{"cx":591.8,"cy":305.1,"w":367.9,"h":241.1,"angle":18.6}},"sus":{"w":941,"h":938,"body":"neumis/sus_body.png","arms":[{"src":"neumis/sus_arm0.png","px":160,"py":560}],"screen":{"cx":409.2,"cy":516.1,"w":331.2,"h":213.3,"angle":3.0}}};
 const CAST = {
-  Mafe: { label: "Mafe", color: "#E8574B", img: "neumis/mafe.png", ar: 1.234 },
-  Sal:  { label: "Sal",  color: "#9EC3E6", img: "neumis/sal.png",  ar: 1.04 },
-  Sus:  { label: "Sus",  color: "#D9C6E6", img: "neumis/sus.png",  ar: 1.003 },
-  Ann:  { label: "Ann",  color: "#B7A6F0", img: "neumis/ann.png",  ar: 1.385 },
+  Mafe: { label: "Mafe", color: "#E8574B", rig: RIG.mafe, face: "laugh" },
+  Sal:  { label: "Sal",  color: "#9EC3E6", rig: RIG.sal,  face: "glassesSmile" },
+  Sus:  { label: "Sus",  color: "#D9C6E6", rig: RIG.sus,  face: "dots" },
+  Ann:  { label: "Ann",  color: "#B7A6F0", rig: RIG.ann,  face: "glassesTongue" },
 };
 const EXTRAS = {
   worker:  { color: "#9AA5B1", skin: "#C99572", hair: "#2A1A12", hairStyle: "short", hardhat: true },
@@ -107,6 +109,38 @@ function txt(x, y, s, o = {}) {
   return `<text x="${x}" y="${y}" font-family="${family}" font-weight="${bebas ? 400 : 700}" font-size="${bebas ? Math.round(size * 1.2) : size}" ${bebas ? 'letter-spacing="1.5"' : ""} fill="${fill}" text-anchor="${anchor}" opacity="${opacity}" ${extra}>${esc(s)}</text>`;
 }
 
+/* ---------- NEUMI faces (white line art on the black screen) ---------- */
+function face(style, u, t, talk, blink, open) {
+  const sw = 0.075 * u, st = `fill="none" stroke="#E6E6E6" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"`;
+  const m = talk ? 0.25 + 0.75 * open : 0;           // 0 = resting mouth, 1 = wide open
+  const eyeArc = (x, y, r) => blink ? `<path d="M${x - r} ${y} H${x + r}" ${st}/>` : `<path d="M${x - r} ${y + r * .45} Q${x} ${y - r * .9} ${x + r} ${y + r * .45}" ${st}/>`;
+  let f = "";
+  if (style === "glassesSmile") {
+    for (const x of [-0.27, 0.27]) f += `<rect x="${(x - 0.21) * u}" y="${-0.25 * u}" width="${0.42 * u}" height="${0.38 * u}" rx="${0.09 * u}" ${st}/>` + eyeArc(x * u, -0.05 * u, 0.09 * u);
+    f += `<path d="M${-0.06 * u} ${-0.08 * u} H${0.06 * u}" ${st}/>`;
+    const mh = (0.1 + 0.16 * m) * u;
+    f += `<path d="M${-0.11 * u} ${0.24 * u} H${0.11 * u} Q${0.11 * u} ${0.24 * u + mh} 0 ${0.24 * u + mh} Q${-0.11 * u} ${0.24 * u + mh} ${-0.11 * u} ${0.24 * u} Z" ${st}/>`;
+  } else if (style === "laugh") {
+    const e = blink ? 0.02 : 0.08;
+    f += `<path d="M${-0.36 * u} ${-0.24 * u} L${-0.2 * u} ${(-0.16 + e - 0.08) * u} L${-0.36 * u} ${-0.08 * u}" ${st}/>`;
+    f += `<path d="M${0.36 * u} ${-0.24 * u} L${0.2 * u} ${(-0.16 + e - 0.08) * u} L${0.36 * u} ${-0.08 * u}" ${st}/>`;
+    const mh = (0.2 + 0.18 * (talk ? m : 0.6)) * u;
+    f += `<path d="M${-0.26 * u} ${0.02 * u} H${0.26 * u} Q${0.26 * u} ${0.02 * u + mh} 0 ${0.02 * u + mh} Q${-0.26 * u} ${0.02 * u + mh} ${-0.26 * u} ${0.02 * u} Z" fill="#E6E6E6"/>`;
+    f += `<ellipse cx="${0.02 * u}" cy="${0.02 * u + mh * 0.72}" rx="${0.13 * u}" ry="${mh * 0.22}" fill="#111"/>`;
+  } else if (style === "glassesTongue") {
+    for (const x of [-0.25, 0.25]) f += `<rect x="${(x - 0.19) * u}" y="${-0.27 * u}" width="${0.38 * u}" height="${0.36 * u}" rx="${0.14 * u}" ${st}/>` + eyeArc(x * u, -0.08 * u, 0.08 * u);
+    for (const x of [-0.42, 0.42]) f += `<circle cx="${x * u}" cy="${0.16 * u}" r="${0.025 * u}" fill="#E6E6E6"/><circle cx="${(x + 0.05) * u}" cy="${0.2 * u}" r="${0.025 * u}" fill="#E6E6E6"/>`;
+    if (talk) f += `<ellipse cx="0" cy="${0.22 * u}" rx="${0.09 * u}" ry="${(0.04 + 0.08 * m) * u}" ${st}/>`;
+    else f += `<path d="M${-0.1 * u} ${0.17 * u} Q0 ${0.25 * u} ${0.1 * u} ${0.17 * u}" ${st}/><path d="M${-0.05 * u} ${0.21 * u} V${0.29 * u} Q0 ${0.35 * u} ${0.05 * u} ${0.29 * u} V${0.21 * u}" fill="#E6E6E6"/>`;
+  } else { // dots
+    const ry = blink ? 0.02 : 0.12;
+    for (const x of [-0.3, 0.3]) f += `<ellipse cx="${x * u}" cy="${-0.08 * u}" rx="${0.1 * u}" ry="${ry * u}" fill="#D9D9D9"/>`;
+    const mh = (0.07 + 0.17 * m) * u;
+    f += `<rect x="${-0.24 * u}" y="${0.2 * u - mh / 2}" width="${0.48 * u}" height="${mh}" rx="${Math.min(mh / 2, 0.06 * u)}" fill="#D9D9D9"/>`;
+  }
+  return f;
+}
+
 /* ---------- character ---------- */
 function neumi(c, x, y, s, t, o = {}) {
   const { talk = false, wave = false, op = 1, flip = false, walk = false, seed = 0, tag = null } = o;
@@ -117,10 +151,20 @@ function neumi(c, x, y, s, t, o = {}) {
   const mouthOpen = talk ? 0.25 + 0.75 * Math.abs(Math.sin(t * 15 + seed)) : 0;
   let g = `<g transform="translate(${x},${y + hop * s}) scale(${flip ? -s : s},${s})" opacity="${op}">`;
   g += `<ellipse cx="0" cy="4" rx="78" ry="13" fill="#000" opacity=".16"/>`;
-  if (c.img) {
-    const H = 330, W = H * c.ar;
-    const tilt = talk ? 3 * Math.sin(t * 7 + seed) : wave ? 6 * Math.sin(t * 8 + seed) : 1.5 * Math.sin(t * 1.3 + seed);
-    g += `<g transform="rotate(${tilt}) scale(${1 + 0.01 * Math.sin(t * 2.2 + seed)},${breath})"><image href="${c.img}" x="${-W / 2}" y="${-H}" width="${W}" height="${H}"/></g>`;
+  if (c.rig) {
+    const R = c.rig, H = 330, k = H / R.h, W = R.w * k;
+    const tilt = talk ? 2.5 * Math.sin(t * 7 + seed) : wave ? 4 * Math.sin(t * 8 + seed) : 1.2 * Math.sin(t * 1.3 + seed);
+    const sq = talk ? 0.025 * Math.sin(t * 12 + seed) : 0.01 * Math.sin(t * 2.2 + seed);
+    g += `<g transform="rotate(${tilt}) scale(${1 + sq},${(1 - sq) * breath})"><g transform="translate(${-W / 2},${-H}) scale(${k})">`;
+    R.arms.forEach((a, i) => {
+      const dir = i % 2 ? -1 : 1;
+      const ang = wave ? dir * (22 + 16 * Math.sin(t * 8 + i)) : talk ? dir * 13 * Math.sin(t * 4.6 + i * 1.9 + seed) : dir * 4 * Math.sin(t * 1.6 + i + seed);
+      g += `<image href="${a.src}" width="${R.w}" height="${R.h}" transform="rotate(${ang} ${a.px} ${a.py})"/>`;
+    });
+    g += `<image href="${R.body}" width="${R.w}" height="${R.h}"/>`;
+    const sc = R.screen;
+    g += `<g transform="translate(${sc.cx},${sc.cy}) rotate(${sc.angle})">${face(c.face, sc.h, t, talk, blink, mouthOpen)}</g>`;
+    g += `</g></g>`;
   } else {
     g += `<g transform="scale(1,${breath})">`;
     // behind the body

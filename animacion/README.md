@@ -7,8 +7,14 @@
 Script: `../script_HP_NEUMIS.md` (content from the "HP Wiki NEUMA" document).
 
 ## NEUMIS
-The character renders are in `animacion/neumis/` (sal, sus, mafe, ann). To replace one, overwrite its PNG
-(transparent background, cropped to the character), update its `ar` (width / height) in `CAST` in `index.html`, and re-export.
+The character renders are in `animacion/neumis/` (sal, sus, mafe, ann). `tools/rig.py` splits each one into
+a body layer (face erased from the screen, arms removed) and one layer per arm, and writes `neumis/rig.json`
+with the screen position and shoulder pivots. `index.html` redraws each face so it blinks and talks, swings the
+arms from the shoulders, and squashes the body while speaking.
+
+To replace a NEUMI: overwrite its PNG (transparent background, cropped to the character), adjust its arm polygons
+and pivots in `tools/rig.py`, run `python3 animacion/tools/rig.py` (needs numpy and opencv), paste the new
+`rig.json` into `const RIG` in `index.html`, and re-export.
 
 ## Brand
 - Logo: `animacion/logo.png` (iGEM Puebla).
