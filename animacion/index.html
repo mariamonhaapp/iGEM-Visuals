@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEUMA · HP en 60s</title>
+<style>
+  @font-face { font-family: "Nunito"; font-weight: 400; src: url(fonts/nunito-latin-400-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Nunito"; font-weight: 400; src: url(fonts/nunito-latin-ext-400-normal.woff2) format("woff2"); unicode-range: U+0100-024F, U+1E00-1EFF; }
+  @font-face { font-family: "Nunito"; font-weight: 700; src: url(fonts/nunito-latin-700-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Nunito"; font-weight: 800; src: url(fonts/nunito-latin-800-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Nunito"; font-weight: 900; src: url(fonts/nunito-latin-900-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 600; src: url(fonts/fredoka-latin-600-normal.woff2) format("woff2"); }
+  @font-face { font-family: "Fredoka"; font-weight: 700; src: url(fonts/fredoka-latin-700-normal.woff2) format("woff2"); }
+
+  /* Paleta provisional: cámbiala aquí por la del wiki */
+  :root {
+    --navy: #0E2A47;
+    --blue: #2F6FA8;
+    --sky: #8EC5E8;
+    --mint: #7FD1C3;
+    --coral: #F28B82;
+    --yellow: #FFD166;
+    --cream: #FFF7EC;
+    --ink: #13233A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0a1626; color: #fff; font-family: "Nunito", sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; }
+  #wrap { width: min(100%, calc((100vh - 110px) * 16 / 9)); aspect-ratio: 16 / 9; position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; background: var(--navy); overflow: hidden; }
+  #stage svg { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; }
+  #subs { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); width: 1560px; display: flex; align-items: flex-start; gap: 22px;
+          background: rgba(10, 26, 46, .86); border-radius: 30px; padding: 22px 34px; transition: none; }
+  #subs.hidden { opacity: 0; }
+  #who { flex: 0 0 auto; font-family: "Fredoka", sans-serif; font-weight: 700; font-size: 34px; color: var(--ink); padding: 6px 20px; border-radius: 999px; margin-top: 4px; }
+  #line { font-size: 42px; line-height: 1.28; font-weight: 700; color: #fff; min-height: 54px; }
+  #line .ghost { color: transparent; }
+  #controls { display: flex; align-items: center; gap: 12px; width: min(100%, 900px); }
+  #controls button { font: 700 16px "Nunito", sans-serif; background: #1d3a5c; color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; }
+  #controls button:hover { background: #2a527f; }
+  #scrub { flex: 1; accent-color: #F28B82; }
+  #time { font: 700 15px "Nunito", sans-serif; min-width: 92px; text-align: right; color: #c9d8e8; }
+  body.capture { padding: 0; background: #000; }
+  body.capture #controls { display: none; }
+  body.capture #wrap { width: 1920px; border-radius: 0; box-shadow: none; }
+  @media (max-width: 600px) { #controls button { padding: 8px 12px; font-size: 14px; } }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="stage">
+    <svg id="svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="subs" class="hidden"><div id="who"></div><div id="line"></div></div>
+  </div>
+</div>
+<div id="controls">
+  <button id="play">▶ Reproducir</button>
+  <button id="restart">↺ Inicio</button>
+  <input id="scrub" type="range" min="0" max="60" step="0.01" value="0">
+  <span id="time">0:00 / 1:00</span>
+</div>
+
+<script>
+const DURATION = 60;
+
+/* ---------- NEUMIS ----------
+   Rasgos tomados del formulario "Diseño de Personajes iGEM".
+   Si ya tienes la imagen real de un NEUMI, pon la ruta en `img`
+   (por ejemplo "neumis/mafe.png", PNG con fondo transparente, de pie, pies abajo al centro)
+   y se usará en lugar del dibujo. */
+const CAST = {
+  Mafe: { label: "Mafe", color: "#F28B82", skin: "#E8B08A", hair: "#4A2C1E", hairStyle: "wavy",
+          moles: [[-24, -168], [38, -190]], prop: "coffee", img: null },
+  Sal:  { label: "Sal", color: "#7FD1C3", skin: "#F0C6A2", hair: "#2B1B14", hairStyle: "straight",
+          glasses: true, eye: "#2E6DB4", moles: [[44, -180]], prop: "camera", img: null },
+  Sus:  { label: "Sus", color: "#5B8FC7", skin: "#D8A07A", hair: "#2A1A12", hairStyle: "pony",
+          cap: "#1E3550", earring: true, serious: true, prop: "backpack", img: null },
+  Ann:  { label: "Ann", color: "#FFD166", skin: "#C68C64", hair: "#3A2216", hairStyle: "curly",
+          glasses: true, prop: "notebook", img: null },
+  VH:   { label: "VH", color: "#8EC5E8", skin: "#D3A07B", hair: "#1F1510", hairStyle: "short",
+          cap: "#33414E", glasses: true, widePants: true, prop: "guitar", img: null },
+};
+const EXTRAS = {
+  worker:  { color: "#9AA5B1", skin: "#C99572", hair: "#2A1A12", hairStyle: "short", hardhat: true },
+  patient: { color: "#B8A1E3", skin: "#D9A47F", hair: "#6B6B6B", hairStyle: "short" },
+  family:  { color: "#F4A261", skin: "#C68C64", hair: "#2B1B14", hairStyle: "straight" },
+};
+
+/* ---------- Diálogo (del guion_HP_NEUMIS.md) ---------- */
+const LINES = [
+  { who: "Mafe", a: 0.6,  b: 5.8,  text: "NEUMA significa respiro. Y Human Practices es el corazón del proyecto." },
+  { who: "Sal",  a: 6.3,  b: 13.8, text: "Entrevistamos a 25 especialistas en dos hospitales públicos de Puebla: La Margarita del IMSS y el ISSSTE." },
+  { who: "Sus",  a: 14.3, b: 18.8, text: "Escuchamos lo mismo una y otra vez: el cáncer de pulmón llega tarde." },
+  { who: "Sus",  a: 18.9, b: 23.8, text: "Una “tosecita” que nadie sospecha, meses de espera…" },
+  { who: "Ann",  a: 24.3, b: 31.8, text: "…y alguien que pospone su consulta porque, si no trabaja, su familia no come." },
+  { who: "Mafe", a: 32.3, b: 36.4, text: "No es que a la gente no le importe: es un sistema que le falla mucho antes del hospital." },
+  { who: "Mafe", a: 36.5, b: 39.8, text: "A eso le llamamos cultura del diagnóstico." },
+  { who: "VH",   a: 40.3, b: 44.9, text: "Por eso NEUMA es triaje, no veredicto: un cuestionario filtra y la prueba se pide en segundo nivel." },
+  { who: "VH",   a: 45.0, b: 49.8, text: "El resultado llega con pasos claros, palabras cuidadosas y la familia al lado." },
+  { who: "Todos", a: 50.3, b: 56.8, text: "Este no es nuestro último respiro. Porque en cáncer de pulmón, cada hora cuenta." },
+];
+
+/* ---------- utilidades ---------- */
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const ease = p => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const back = p => { const c = 1.70158, c3 = c + 1; return 1 + c3 * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const speaking = (who, t) => LINES.some(l => (l.who === who || l.who === "Todos") && t >= l.a && t <= l.b);
+
+function txt(x, y, s, o = {}) {
+  const { size = 40, weight = 700, fill = "#fff", anchor = "middle", family = "Nunito", opacity = 1, extra = "" } = o;
+  return `<text x="${x}" y="${y}" font-family="${family}" font-weight="${weight}" font-size="${size}" fill="${fill}" text-anchor="${anchor}" opacity="${opacity}" ${extra}>${esc(s)}</text>`;
+}
+
+/* ---------- personaje ---------- */
+function neumi(c, x, y, s, t, o = {}) {
+  const { talk = false, wave = false, op = 1, flip = false, walk = false, seed = 0, tag = null } = o;
+  if (op <= 0) return "";
+  const breath = 1 + 0.014 * Math.sin(t * 2.2 + seed);
+  const hop = talk ? -7 * Math.abs(Math.sin(t * 6 + seed)) : walk ? -6 * Math.abs(Math.sin(t * 9 + seed)) : 0;
+  const blink = ((t + seed * 1.3) % 3.6) < 0.13;
+  const mouthOpen = talk ? 0.25 + 0.75 * Math.abs(Math.sin(t * 15 + seed)) : 0;
+  let g = `<g transform="translate(${x},${y + hop * s}) scale(${flip ? -s : s},${s})" opacity="${op}">`;
+  g += `<ellipse cx="0" cy="4" rx="78" ry="13" fill="#000" opacity=".16"/>`;
+  if (c.img) {
+    g += `<image href="${c.img}" x="-160" y="-340" width="320" height="340" preserveAspectRatio="xMidYMax meet" transform="scale(1,${breath})"/>`;
+  } else {
+    g += `<g transform="scale(1,${breath})">`;
+    // detrás del cuerpo
+    if (c.prop === "backpack") g += `<rect x="-82" y="-150" width="164" height="118" rx="36" fill="#E07A5F"/><rect x="-82" y="-110" width="164" height="22" fill="#C8654C"/>`;
+    if (c.prop === "guitar") g += `<g transform="rotate(-28)"><rect x="50" y="-330" width="16" height="190" rx="6" fill="#7A4A26"/><ellipse cx="58" cy="-110" rx="46" ry="58" fill="#C8874A"/><circle cx="58" cy="-110" r="14" fill="#5A341A"/></g>`;
+    if (c.hairStyle === "wavy") g += `<path d="M-98 -230 Q-118 -170 -98 -128 Q-84 -108 -66 -126 Q-56 -110 -40 -124 L40 -124 Q56 -110 66 -126 Q84 -108 98 -128 Q118 -170 98 -230 Z" fill="${c.hair}"/>`;
+    if (c.hairStyle === "straight") g += `<path d="M-96 -230 L-100 -132 L100 -132 L96 -230 Z" fill="${c.hair}"/>`;
+    if (c.hairStyle === "pony") g += `<ellipse cx="96" cy="-180" rx="24" ry="52" fill="${c.hair}" transform="rotate(16 96 -180)"/>`;
+    if (c.hairStyle === "curly") for (const [cx, cy] of [[-92,-200],[-98,-165],[-84,-135],[92,-200],[98,-165],[84,-135]]) g += `<circle cx="${cx}" cy="${cy}" r="27" fill="${c.hair}"/>`;
+    // piernas
+    const pw = c.widePants ? 34 : 26;
+    g += `<rect x="${-8 - pw}" y="-40" width="${pw}" height="40" rx="10" fill="#2E3A4A"/><rect x="8" y="-40" width="${pw}" height="40" rx="10" fill="#2E3A4A"/>`;
+    g += `<ellipse cx="${-8 - pw / 2}" cy="-2" rx="${pw / 2 + 8}" ry="9" fill="#1b2430"/><ellipse cx="${8 + pw / 2}" cy="-2" rx="${pw / 2 + 8}" ry="9" fill="#1b2430"/>`;
+    // cuerpo
+    g += `<rect x="-62" y="-134" width="124" height="106" rx="42" fill="${c.color}"/>`;
+    g += `<path d="M-18 -132 L0 -112 L18 -132" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="6" stroke-linecap="round"/>`;
+    if (c.prop === "backpack") g += `<path d="M-46 -128 L-40 -60 M46 -128 L40 -60" stroke="#C8654C" stroke-width="12" stroke-linecap="round"/>`;
+    if (c.hardhat) g += `<rect x="-62" y="-90" width="124" height="12" fill="#FFD166" opacity=".8"/>`;
+    // brazos
+    const wa = wave ? Math.sin(t * 9 + seed) * 18 : 0;
+    const rh = wave ? [92, -205 + wa] : [78, -66];
+    const lh = c.prop === "notebook" ? [-60, -90] : [-82, -62];
+    if (c.prop === "camera") { rh[0] = 34; rh[1] = -96; }
+    g += `<path d="M-54 -116 Q-76 -96 ${lh[0]} ${lh[1]}" fill="none" stroke="${c.color}" stroke-width="24" stroke-linecap="round"/>`;
+    g += `<path d="M54 -116 Q${wave ? 96 : 76} ${wave ? -150 : -96} ${rh[0]} ${rh[1]}" fill="none" stroke="${c.color}" stroke-width="24" stroke-linecap="round"/>`;
+    // accesorios en mano
+    if (c.prop === "notebook") g += `<g transform="rotate(-12 -60 -96)"><rect x="-96" y="-128" width="58" height="72" rx="6" fill="#FFF7EC" stroke="#3A2216" stroke-width="3"/><path d="M-88 -110 H-46 M-88 -96 H-46 M-88 -82 H-54" stroke="#9BB" stroke-width="3"/></g>`;
+    g += `<circle cx="${lh[0]}" cy="${lh[1]}" r="14" fill="${c.skin}"/><circle cx="${rh[0]}" cy="${rh[1]}" r="14" fill="${c.skin}"/>`;
+    if (c.prop === "coffee" && !wave) {
+      g += `<rect x="64" y="-96" width="36" height="42" rx="7" fill="#fff"/><rect x="64" y="-84" width="36" height="12" fill="#F28B82"/><path d="M100 -86 q14 4 0 18" fill="none" stroke="#fff" stroke-width="5"/>`;
+      for (let i = 0; i < 2; i++) { const k = (t * 0.8 + i * .5) % 1; g += `<path d="M${76 + i * 12} ${-104 - k * 30} q6 -8 0 -16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="${(1 - k) * .7}"/>`; }
+    }
+    if (c.prop === "camera") g += `<rect x="-36" y="-118" width="72" height="48" rx="10" fill="#22303F"/><circle cx="0" cy="-94" r="16" fill="#5C7A99" stroke="#0E1A26" stroke-width="5"/><rect x="18" y="-126" width="14" height="9" rx="3" fill="#22303F"/>`;
+    // cabeza
+    g += `<circle cx="-86" cy="-208" r="16" fill="${c.skin}"/><circle cx="86" cy="-208" r="16" fill="${c.skin}"/>`;
+    g += `<circle cx="0" cy="-215" r="88" fill="${c.skin}"/>`;
+    if (c.earring) g += `<circle cx="90" cy="-190" r="6" fill="#F2C14E"/>`;
+    // cabello frontal / gorra
+    if (c.cap || c.hardhat) {
+      const capc = c.hardhat ? "#FFD166" : c.cap;
+      g += `<path d="M-92 -232 Q-90 -318 0 -318 Q90 -318 92 -232 Z" fill="${capc}"/><ellipse cx="0" cy="-232" rx="104" ry="15" fill="${capc}"/><ellipse cx="0" cy="-236" rx="104" ry="8" fill="#000" opacity=".12"/>`;
+      if (!c.hardhat) g += `<circle cx="0" cy="-314" r="7" fill="${capc}"/>`;
+    } else if (c.hairStyle === "curly") {
+      for (const [cx, cy] of [[-70,-262],[-40,-290],[-6,-300],[30,-294],[62,-272],[84,-240],[-86,-236]]) g += `<circle cx="${cx}" cy="${cy}" r="30" fill="${c.hair}"/>`;
+    } else {
+      g += `<path d="M-90 -214 Q-92 -304 0 -306 Q92 -304 90 -214 Q72 -262 20 -258 Q-30 -276 -90 -214 Z" fill="${c.hair}"/>`;
+    }
+    // cara
+    const eyeFill = c.eye || "#1D1D2B";
+    for (const ex of [-32, 32]) {
+      if (blink) g += `<path d="M${ex - 11} -208 q11 7 22 0" fill="none" stroke="#1D1D2B" stroke-width="5" stroke-linecap="round"/>`;
+      else g += `<ellipse cx="${ex}" cy="-208" rx="11" ry="14" fill="${eyeFill}"/><circle cx="${ex + 4}" cy="-213" r="4.5" fill="#fff"/>`;
+      g += c.serious ? `<path d="M${ex - 14} -236 L${ex + 14} -234" stroke="#2a1a12" stroke-width="5" stroke-linecap="round"/>`
+                     : `<path d="M${ex - 13} -234 q13 -8 26 0" fill="none" stroke="#2a1a12" stroke-width="5" stroke-linecap="round"/>`;
+    }
+    if (c.glasses) g += `<g fill="#fff" fill-opacity=".14" stroke="#2B2B2B" stroke-width="5"><circle cx="-32" cy="-208" r="25"/><circle cx="32" cy="-208" r="25"/></g><path d="M-7 -210 H7" stroke="#2B2B2B" stroke-width="5"/>`;
+    g += `<ellipse cx="-56" cy="-180" rx="15" ry="9" fill="#F4978E" opacity=".55"/><ellipse cx="56" cy="-180" rx="15" ry="9" fill="#F4978E" opacity=".55"/>`;
+    if (talk) g += `<ellipse cx="0" cy="-170" rx="14" ry="${3 + 10 * mouthOpen}" fill="#7A2E2E"/>`;
+    else if (c.serious) g += `<path d="M-12 -172 q12 6 24 0" fill="none" stroke="#7A2E2E" stroke-width="5" stroke-linecap="round"/>`;
+    else g += `<path d="M-17 -176 q17 16 34 0" fill="none" stroke="#7A2E2E" stroke-width="5" stroke-linecap="round"/>`;
+    for (const [mx, my] of (c.moles || [])) g += `<circle cx="${mx}" cy="${my}" r="3.5" fill="#4a2a1a"/>`;
+    g += `</g>`;
+  }
+  g += `</g>`;
+  if (tag) {
+    const w = 30 + tag.length * 22;
+    g += `<g opacity="${op}"><rect x="${x - w / 2}" y="${y + 14}" width="${w}" height="42" rx="21" fill="${c.color}"/>${txt(x, y + 14 + 31, tag, { size: 28, family: "Fredoka", fill: "#13233A" })}</g>`;
+  }
+  return g;
+}
+
+/* ---------- elementos gráficos ---------- */
+function lungs(cx, cy, s, t, op = 1) {
+  const b = 1 + 0.06 * Math.sin(t * Math.PI * 2 / 3.2);
+  const lobe = `M-14 -58 C-62 -70 -112 -8 -106 62 C-100 112 -40 112 -22 80 C-12 50 -12 0 -14 -58 Z`;
+  return `<g transform="translate(${cx},${cy}) scale(${s * b})" opacity="${op}">
+    <rect x="-9" y="-112" width="18" height="70" rx="9" fill="#FFF7EC"/>
+    <path d="${lobe}" fill="url(#lungL)"/>
+    <path d="${lobe}" fill="url(#lungR)" transform="scale(-1,1)"/>
+    <path d="M0 -46 Q-20 -30 -46 0 M-30 -18 Q-52 -14 -66 10 M0 -46 Q20 -30 46 0 M30 -18 Q52 -14 66 10" fill="none" stroke="#FFF7EC" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+  </g>`;
+}
+function particles(t, n, color, op) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const sp = 40 + (i * 37) % 70, r = 5 + (i * 7) % 16;
+    const x = (i * 263.7) % 1920 + 20 * Math.sin(t * .7 + i);
+    const y = 1140 - ((t * sp + i * 173) % 1260);
+    s += `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" opacity="${op}"/>`;
+  }
+  return s;
+}
+function card(x, y, w, h, fill = "#fff", op = 1, extra = "") {
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="26" fill="${fill}" opacity="${op}" ${extra}/>`;
+}
+function popIn(t, a, d = .5) { const p = seg(t, a, a + d); return { p, s: back(p), op: clamp(p * 1.6) }; }
+function personIcon(x, y, s, fill) {
+  return `<g transform="translate(${x},${y}) scale(${s})"><circle cx="0" cy="-34" r="14" fill="${fill}"/><rect x="-16" y="-18" width="32" height="30" rx="12" fill="${fill}"/></g>`;
+}
+
+const DEFS = `<defs>
+  <linearGradient id="lungL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7A6A0"/><stop offset="1" stop-color="#E36B6B"/></linearGradient>
+  <linearGradient id="lungR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FD3F0"/><stop offset="1" stop-color="#4F95CF"/></linearGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E2A47"/><stop offset="1" stop-color="#1F4E7A"/></linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4C8DC4"/><stop offset="1" stop-color="#0E2A47"/></linearGradient>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CFE8F7"/><stop offset="1" stop-color="#F3FAFF"/></linearGradient>
+  <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE3C7"/><stop offset="1" stop-color="#FFF7EC"/></linearGradient>
+</defs>`;
+
+/* ---------- escenas ---------- */
+const ROW = [["Sal", 360], ["Sus", 660], ["Mafe", 960], ["Ann", 1260], ["VH", 1560]];
+
+const SCENES = [
+  { a: 0, b: 6, draw(t) { // 1. NEUMA respira
+    let s = `<rect width="1920" height="1080" fill="url(#night)"/>` + particles(t, 26, "#8EC5E8", .12);
+    const up = ease(seg(t, 2.4, 3.4));
+    s += lungs(960, lerp(420, 230, up), lerp(1.7, 1.05, up), t, clamp(t / .6));
+    const word = "NEUMA";
+    let spans = "";
+    for (let i = 0; i < word.length; i++) spans += `<tspan opacity="${popIn(t, .5 + i * .16, .45).op}">${word[i]}</tspan>`;
+    const wy = lerp(700, 470, up), ws = 0.9 + 0.1 * back(seg(t, .5, 1.6));
+    s += `<g transform="translate(960,${wy}) scale(${ws})"><text x="0" y="0" font-family="Fredoka" font-weight="700" font-size="150" fill="#FFF7EC" text-anchor="middle">${spans}</text></g>`;
+    s += txt(960, lerp(770, 535, up), "iGEM Puebla 2026 · Human Practices", { size: 38, fill: "#8EC5E8", opacity: seg(t, 1.6, 2.2) });
+    ROW.forEach(([k, x], i) => { const p = popIn(t, 2.9 + i * .18, .55);
+      s += neumi(CAST[k], x, 820 + (1 - p.p) * 80, .85, t, { talk: speaking(k, t) && t < 6, op: p.op, seed: i, tag: CAST[k].label }); });
+    return s;
+  }},
+  { a: 6, b: 14, draw(t) { // 2. 25 entrevistas
+    let s = `<rect width="1920" height="1080" fill="url(#sky)"/><rect y="760" width="1920" height="320" fill="#DCEBF5"/>`;
+    for (const [bx, name1, name2, col] of [[60, "HGZ No. 20", "“La Margarita” · IMSS", "#2F6FA8"], [1480, "Hospital Regional", "ISSSTE Puebla", "#1F7A6E"]]) {
+      const p = popIn(t, bx < 900 ? 6.6 : 7.0, .6);
+      s += `<g opacity="${p.op}" transform="translate(${bx + 190},760) scale(${p.s}) translate(${-bx - 190},-760)">
+        <rect x="${bx}" y="330" width="380" height="430" rx="18" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>
+        <rect x="${bx}" y="330" width="380" height="96" rx="18" fill="${col}"/>
+        ${txt(bx + 190, 372, name1, { size: 32, family: "Fredoka" })}${txt(bx + 190, 410, name2, { size: 26, weight: 800 })}
+        ${[0, 1, 2].map(r => [0, 1, 2].map(c2 => `<rect x="${bx + 40 + c2 * 110}" y="${460 + r * 80}" width="80" height="54" rx="8" fill="#CFE6F7"/>`).join("")).join("")}
+        <rect x="${bx + 150}" y="690" width="80" height="70" rx="8" fill="${col}" opacity=".8"/>
+        <path d="M${bx + 335} 350 h0" /><g transform="translate(${bx + 340},280)"><rect x="-26" y="-8" width="52" height="16" rx="4" fill="#E36B6B"/><rect x="-8" y="-26" width="16" height="52" rx="4" fill="#E36B6B"/></g>
+      </g>`;
+    }
+    const n = Math.round(25 * ease(seg(t, 7.2, 10.6)));
+    s += `<g opacity="${seg(t, 7, 7.4)}">${txt(960, 210, String(n), { size: 170, family: "Fredoka", fill: "#0E2A47" })}${txt(960, 268, "especialistas clínicos entrevistados", { size: 40, fill: "#2F6FA8" })}</g>`;
+    for (let i = 0; i < 25; i++) {
+      const row = i < 13 ? 0 : 1, col = row ? i - 13 : i, cols = row ? 12 : 13;
+      const x = 960 - (cols - 1) * 26 + col * 52, y = 340 + row * 62;
+      const on = i < n;
+      s += personIcon(x, y, .9, on ? (i % 2 ? "#F28B82" : "#2F6FA8") : "#C9DCEA");
+    }
+    s += txt(960, 480, "2 al 28 de julio de 2026", { size: 30, fill: "#4C6A88", opacity: seg(t, 10.6, 11.2) });
+    s += neumi(CAST.Sal, 960, 830, 1.1, t, { talk: speaking("Sal", t), seed: 1, tag: "Sal" });
+    for (const ft of [11.6, 12.7]) { const k = seg(t, ft, ft + .35); if (k > 0 && k < 1) s += `<rect width="1920" height="1080" fill="#fff" opacity="${(1 - k) * .55}"/>`; }
+    return s;
+  }},
+  { a: 14, b: 24, draw(t) { // 3. Llega tarde
+    let s = `<rect width="1920" height="1080" fill="#FFF7EC"/>` + particles(t, 14, "#F28B82", .08);
+    s += txt(960, 120, "El camino al diagnóstico", { size: 64, family: "Fredoka", fill: "#0E2A47", opacity: seg(t, 14.2, 14.7) });
+    const x0 = 360, x1 = 1560, ly = 300;
+    s += `<line x1="${x0}" y1="${ly}" x2="${lerp(x0, x1, ease(seg(t, 14.6, 15.4)))}" y2="${ly}" stroke="#BFD0DF" stroke-width="14" stroke-linecap="round"/>`;
+    const prog = ease(seg(t, 15.4, 22.4));
+    s += `<line x1="${x0}" y1="${ly}" x2="${lerp(x0, x1, prog)}" y2="${ly}" stroke="#F28B82" stroke-width="14" stroke-linecap="round"/>`;
+    const ms = [
+      [x0, 15.6, "“Es solo una tosecita”", "síntoma minimizado", "cough"],
+      [960, 18.2, "6–12 meses", "para llegar a neumología", "clock"],
+      [x1, 20.8, "~1.5 años · estadio IV", "casi 100% llega avanzado", "alert"],
+    ];
+    for (const [mx, at, h1, h2, ic] of ms) {
+      const p = popIn(t, at, .5);
+      s += `<g opacity="${p.op}" transform="translate(${mx},${ly}) scale(${p.s})">
+        <circle r="44" fill="${ic === "alert" ? "#E36B6B" : "#2F6FA8"}"/>
+        ${ic === "cough" ? `<path d="M-20 4 q-8 -22 12 -22 q6 -12 20 -2 q16 -2 12 14 q8 14 -10 16 h-26 q-14 0 -8 -6z" fill="#fff"/>` : ""}
+        ${ic === "clock" ? `<circle r="24" fill="none" stroke="#fff" stroke-width="6"/><path d="M0 -14 V0 L10 8" stroke="#fff" stroke-width="6" stroke-linecap="round" fill="none"/>` : ""}
+        ${ic === "alert" ? `<path d="M0 -24 L24 18 H-24 Z" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/><path d="M0 -8 V6" stroke="#fff" stroke-width="6" stroke-linecap="round"/>` : ""}
+        ${card(-210, 70, 420, 120, "#fff", 1, `stroke="#E5D8C6" stroke-width="3"`)}
+        ${txt(0, 122, h1, { size: 34, family: "Fredoka", fill: "#0E2A47" })}${txt(0, 166, h2, { size: 26, fill: "#5A6B7D" })}
+      </g>`;
+    }
+    // reloj de arena
+    const hp = seg(t, 15, 23.5), hx = 1500, hy = 690;
+    s += `<g transform="translate(${hx},${hy})" opacity="${seg(t, 15, 15.5)}">
+      <rect x="-80" y="-150" width="160" height="16" rx="8" fill="#7A4A26"/><rect x="-80" y="134" width="160" height="16" rx="8" fill="#7A4A26"/>
+      <path d="M-62 -134 L62 -134 L8 0 L62 134 L-62 134 L-8 0 Z" fill="#fff" fill-opacity=".7" stroke="#9BB4C9" stroke-width="5"/>
+      <path d="M${-50 * (1 - hp)} ${-118 + 110 * hp} L${50 * (1 - hp)} ${-118 + 110 * hp} L0 -6 Z" fill="#F2C14E"/>
+      <path d="M-54 128 L54 128 L${30 * hp} ${128 - 100 * hp} L${-30 * hp} ${128 - 100 * hp} Z" fill="#F2C14E" opacity="${hp > .02 ? 1 : 0}"/>
+      ${hp < 1 ? `<line x1="0" y1="0" x2="0" y2="${128 - 100 * hp}" stroke="#F2C14E" stroke-width="5"/>` : ""}
+    </g>`;
+    s += txt(1500, 900, "en cáncer de pulmón, cada hora cuenta", { size: 26, fill: "#8A6A3E", opacity: seg(t, 21.5, 22.2) });
+    s += neumi(CAST.Sus, 420, 830, 1.05, t, { talk: speaking("Sus", t), seed: 2, tag: "Sus" });
+    return s;
+  }},
+  { a: 24, b: 32, draw(t) { // 4. La familia
+    let s = `<rect width="1920" height="1080" fill="url(#dusk)"/><rect y="760" width="1920" height="320" fill="#F1E2CC"/>`;
+    // casa
+    s += `<g opacity="${seg(t, 24, 24.5)}"><path d="M150 430 L380 270 L610 430 Z" fill="#E36B6B"/><rect x="180" y="430" width="400" height="330" fill="#FFF" stroke="#E5D8C6" stroke-width="4"/>
+      <rect x="230" y="480" width="150" height="120" rx="10" fill="#FFE29A"/><rect x="440" y="560" width="90" height="200" rx="8" fill="#B5835A"/>
+      ${personIcon(275, 590, 1.3, "#F4A261")}${personIcon(335, 590, 1, "#B8A1E3")}</g>`;
+    s += txt(380, 820, "la familia depende de su ingreso", { size: 28, fill: "#8A6A3E", opacity: seg(t, 25, 25.6) });
+    // clínica
+    s += `<g opacity="${seg(t, 24.3, 24.8)}"><rect x="1100" y="380" width="340" height="380" rx="14" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>
+      <rect x="1100" y="380" width="340" height="80" rx="14" fill="#2F6FA8"/>${txt(1270, 432, "Clínica", { size: 36, family: "Fredoka" })}
+      <g transform="translate(1270,560)"><rect x="-40" y="-13" width="80" height="26" rx="6" fill="#E36B6B"/><rect x="-13" y="-40" width="26" height="80" rx="6" fill="#E36B6B"/></g>
+      <rect x="1225" y="660" width="90" height="100" rx="6" fill="#9FC3E0"/></g>`;
+    // "mañana" repetido
+    ["mañana…", "mañana…", "mañana…"].forEach((w, i) => { const p = popIn(t, 26.5 + i * .9, .4);
+      s += `<g opacity="${p.op * (t > 30.8 ? .5 : 1)}" transform="translate(${1270 + (i - 1) * 130},${330 - i * 40}) scale(${p.s}) rotate(${(i - 1) * 6})">${card(-80, -32, 160, 56, "#fff")}${txt(0, 6, w, { size: 28, fill: "#E36B6B", weight: 800 })}</g>`; });
+    // trabajador que se aleja de la clínica
+    const wx = lerp(980, 760, ease(seg(t, 26, 30)));
+    s += neumi(EXTRAS.worker, wx, 830, .8, t, { walk: t > 26 && t < 30, flip: true, seed: 5 });
+    // cita de enfermería
+    const qp = popIn(t, 24.8, .6);
+    s += `<g opacity="${qp.op}">${card(560, 60, 800, 150, "#fff", .96, `stroke="#F2C9B8" stroke-width="3"`)}
+      ${txt(960, 118, "“Me siento mal, pero voy mañana porque tengo que trabajar;", { size: 30, fill: "#0E2A47", weight: 800 })}
+      ${txt(960, 158, "si no, ¿qué come mi familia?”", { size: 30, fill: "#0E2A47", weight: 800 })}
+      ${txt(960, 192, "— Enfermería, HGZ No. 20", { size: 22, fill: "#8A6A3E" })}</g>`;
+    s += neumi(CAST.Ann, 1700, 830, 1.0, t, { talk: speaking("Ann", t), seed: 3, tag: "Ann" });
+    return s;
+  }},
+  { a: 32, b: 40, draw(t) { // 5. Iceberg
+    const wl = 440;
+    let s = `<rect width="1920" height="1080" fill="url(#sky)"/>`;
+    s += `<path d="M880 ${wl + 2} L945 340 L992 372 L1046 286 L1120 ${wl + 2} Z" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>`;
+    let wave = `M0 ${wl}`; for (let x = 0; x <= 1920; x += 40) wave += ` L${x} ${wl + 6 * Math.sin(x / 90 + t * 2)}`; wave += ` L1920 1080 L0 1080 Z`;
+    s += `<path d="${wave}" fill="url(#sea)"/>`;
+    s += `<path d="M760 ${wl + 8} L1250 ${wl + 8} L1440 650 L1350 880 L1000 960 L640 870 L560 650 Z" fill="#CFE9F7" opacity=".9"/>`;
+    // superficie
+    const tp = popIn(t, 32.6, .5);
+    s += `<g opacity="${tp.op}">${card(770, 168, 460, 70, "#fff", 1, `stroke="#BFD6E8" stroke-width="3"`)}${txt(1000, 214, "“La gente no se cuida”", { size: 34, fill: "#0E2A47", weight: 800 })}
+      ${txt(1000, 150, "lo que se ve", { size: 24, fill: "#4C6A88" })}</g>`;
+    const st = ease(seg(t, 35, 35.8));
+    if (st > 0) s += `<line x1="790" y1="204" x2="${lerp(790, 1210, st)}" y2="204" stroke="#E36B6B" stroke-width="8" stroke-linecap="round"/>`;
+    // bajo el agua
+    const items = [[760, 560, "Citas a meses"], [1240, 560, "Estudios que tardan"], [700, 720, "Costos para la familia"], [1300, 720, "Sin programa de detección"]];
+    items.forEach(([x, y, w], i) => { const p = popIn(t, 33.2 + i * .55, .45);
+      s += `<g opacity="${p.op}" transform="translate(${x},${y}) scale(${p.s})">${card(-215, -34, 430, 64, "#0E2A47", .85)}${txt(0, 10, w, { size: 30, weight: 800 })}</g>`; });
+    const cp = popIn(t, 35.6, .6);
+    s += `<g opacity="${cp.op}" transform="translate(1000,850) scale(${cp.s})">${card(-260, -46, 520, 84, "#E36B6B")}${txt(0, 12, "Un sistema que falla", { size: 44, family: "Fredoka" })}</g>`;
+    // banner
+    const bp = popIn(t, 37.2, .6);
+    s += `<g opacity="${bp.op}" transform="translate(1520,120) scale(${bp.s})">${card(-300, -56, 600, 104, "#0E2A47")}${txt(0, 14, "Cultura del diagnóstico", { size: 46, family: "Fredoka", fill: "#FFD166" })}</g>`;
+    s += txt(1520, 205, "creencias, expectativas y rutinas", { size: 26, fill: "#2F6FA8", opacity: bp.op });
+    // Mafe sobre un témpano
+    const fy = wl + 4 * Math.sin(t * 2);
+    s += `<ellipse cx="260" cy="${fy + 6}" rx="170" ry="26" fill="#fff" stroke="#BFD6E8" stroke-width="4"/>`;
+    s += neumi(CAST.Mafe, 260, fy, .8, t, { talk: speaking("Mafe", t), seed: 4 });
+    return s;
+  }},
+  { a: 40, b: 50, draw(t) { // 6. Triaje, no veredicto
+    let s = `<rect width="1920" height="1080" fill="#EAF7F3"/>` + particles(t, 14, "#7FD1C3", .14);
+    const bp = popIn(t, 40.2, .5);
+    s += `<g opacity="${bp.op}" transform="translate(560,110) scale(${bp.s})">${card(-330, -56, 660, 104, "#0E2A47")}${txt(0, 16, "Triaje, no veredicto", { size: 52, family: "Fredoka", fill: "#7FD1C3" })}</g>`;
+    const nodes = [[330, 40.8, "Cuestionario de riesgo", "1er nivel", "clip"], [800, 42.0, "Prueba NEUMA", "2º nivel", "lungs"], [1270, 43.2, "Confirmación", "biopsia e imagen", "check"]];
+    s += `<line x1="330" y1="430" x2="${lerp(330, 1270, ease(seg(t, 40.8, 43.6)))}" y2="430" stroke="#7FD1C3" stroke-width="16" stroke-dasharray="2 30" stroke-linecap="round"/>`;
+    for (const [x, at, h1, h2, ic] of nodes) {
+      const p = popIn(t, at, .5);
+      s += `<g opacity="${p.op}" transform="translate(${x},430) scale(${p.s})"><circle r="96" fill="#fff" stroke="${ic === "lungs" ? "#F28B82" : "#2F6FA8"}" stroke-width="10"/>
+        ${ic === "clip" ? `<rect x="-34" y="-46" width="68" height="88" rx="10" fill="#2F6FA8"/><rect x="-18" y="-54" width="36" height="16" rx="6" fill="#0E2A47"/><path d="M-20 -16 H20 M-20 4 H20 M-20 24 H8" stroke="#fff" stroke-width="6" stroke-linecap="round"/>` : ""}
+        ${ic === "check" ? `<path d="M-36 2 L-10 28 L38 -24" fill="none" stroke="#2F6FA8" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>` : ""}
+        ${txt(0, 150, h1, { size: 34, family: "Fredoka", fill: "#0E2A47" })}${txt(0, 190, h2, { size: 28, fill: "#4C6A88" })}</g>`;
+      if (ic === "lungs" && p.op > 0) s += lungs(800, 440, .55 * p.s, t, p.op);
+    }
+    // paciente y familiar caminando
+    const pp = ease(seg(t, 43.6, 48.4));
+    const px = lerp(150, 1270, pp), walking = t > 43.6 && t < 48.4;
+    s += `<rect x="120" y="808" width="1260" height="14" rx="7" fill="#CFE9E2" opacity="${seg(t, 43.2, 43.6)}"/>`;
+    s += neumi(EXTRAS.family, px - 95, 810, .48, t, { walk: walking, seed: 7, op: seg(t, 43.2, 43.6) });
+    s += neumi(EXTRAS.patient, px, 810, .55, t, { walk: walking, seed: 6, op: seg(t, 43.2, 43.6) });
+    // resultado con...
+    const rp = popIn(t, 45.2, .6);
+    s += `<g opacity="${rp.op}" transform="translate(1250,200) scale(${rp.s})">${card(-300, -96, 600, 168, "#fff", 1, `stroke="#F28B82" stroke-width="4"`)}
+      ${txt(0, -42, "El resultado llega con:", { size: 30, family: "Fredoka", fill: "#E36B6B" })}
+      ${txt(0, 0, (t > 45.8 ? "✓ pasos claros  " : "") + (t > 46.5 ? "✓ palabras cuidadosas" : ""), { size: 30, fill: "#0E2A47", weight: 800 })}
+      ${txt(0, 44, t > 47.2 ? "✓ apoyo emocional  ✓ la familia al lado" : "", { size: 30, fill: "#0E2A47", weight: 800 })}</g>`;
+    s += neumi(CAST.VH, 1700, 830, 1.0, t, { talk: speaking("VH", t), seed: 8, tag: "VH" });
+    return s;
+  }},
+  { a: 50, b: 60, draw(t) { // 7. No es nuestro último respiro
+    let s = `<rect width="1920" height="1080" fill="url(#night)"/>` + particles(t, 34, "#8EC5E8", .13);
+    s += lungs(960, 270, 1.15, t, seg(t, 50, 50.6));
+    s += txt(960, 470, "“Todos sabemos algo. Todos ignoramos algo.", { size: 40, fill: "#FFF7EC", weight: 800, opacity: seg(t, 51, 51.8) });
+    s += txt(960, 522, "Por eso, aprendemos siempre.” — Taibo", { size: 40, fill: "#FFF7EC", weight: 800, opacity: seg(t, 51.6, 52.4) });
+    ROW.forEach(([k, x], i) => { const p = popIn(t, 50.2 + i * .12, .5);
+      s += neumi(CAST[k], x, 830, .82, t, { talk: speaking(k, t), wave: t > 57, op: p.op * (1 - seg(t, 57, 57.6)), seed: i, tag: CAST[k].label }); });
+    // cierre
+    const e = seg(t, 57, 57.8);
+    if (e > 0) {
+      s += `<rect width="1920" height="1080" fill="#0E2A47" opacity="${e}"/>`;
+      s += lungs(960, 330, 1.0 * back(e), t, e);
+      s += txt(960, 560, "NEUMA", { size: 140, family: "Fredoka", fill: "#FFF7EC", opacity: e });
+      s += txt(960, 630, "iGEM Puebla 2026 · Human Practices", { size: 40, fill: "#8EC5E8", opacity: seg(t, 57.4, 58) });
+      s += txt(960, 720, "En cáncer de pulmón, cada hora cuenta.", { size: 44, fill: "#FFD166", weight: 800, opacity: seg(t, 58, 58.6) });
+    }
+    return s;
+  }},
+];
+
+/* ---------- render ---------- */
+const svg = document.getElementById("svg"), subs = document.getElementById("subs"), who = document.getElementById("who"), line = document.getElementById("line");
+function renderAt(t) {
+  t = clamp(t, 0, DURATION);
+  let out = DEFS;
+  for (let i = 0; i < SCENES.length; i++) {
+    const sc = SCENES[i];
+    if (t < sc.a || t > sc.b + 0.45) continue;
+    const op = i === 0 ? 1 : clamp((t - sc.a) / 0.45);
+    out += `<g opacity="${op}">${sc.draw(t)}</g>`;
+  }
+  svg.innerHTML = out;
+  const l = LINES.find(l => t >= l.a - .05 && t <= l.b + .25);
+  if (l) {
+    const p = clamp((t - l.a) / Math.max(1.2, (l.b - l.a) * .55));
+    const n = Math.round(l.text.length * p);
+    const col = l.who === "Todos" ? "#FFD166" : CAST[l.who].color;
+    who.textContent = l.who; who.style.background = col;
+    line.innerHTML = esc(l.text.slice(0, n)) + `<span class="ghost">${esc(l.text.slice(n))}</span>`;
+    subs.classList.remove("hidden");
+  } else subs.classList.add("hidden");
+}
+window.renderAt = renderAt;
+
+/* ---------- reproductor ---------- */
+const capture = new URLSearchParams(location.search).has("capture");
+if (capture) document.body.classList.add("capture");
+const wrap = document.getElementById("wrap"), stage = document.getElementById("stage");
+function fit() { stage.style.transform = `scale(${wrap.clientWidth / 1920})`; }
+new ResizeObserver(fit).observe(wrap); fit();
+
+let playing = false, t0 = 0, start = 0;
+const playBtn = document.getElementById("play"), scrub = document.getElementById("scrub"), timeEl = document.getElementById("time");
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+function setT(t) { t0 = t; scrub.value = t; timeEl.textContent = `${fmt(t)} / ${fmt(DURATION)}`; renderAt(t); }
+function loop(now) {
+  if (!playing) return;
+  const t = t0 + (now - start) / 1000;
+  if (t >= DURATION) { playing = false; playBtn.textContent = "▶ Reproducir"; setT(DURATION); return; }
+  scrub.value = t; timeEl.textContent = `${fmt(t)} / ${fmt(DURATION)}`; renderAt(t);
+  requestAnimationFrame(loop);
+}
+function play() { if (t0 >= DURATION) t0 = 0; playing = true; start = performance.now(); playBtn.textContent = "❚❚ Pausa"; requestAnimationFrame(loop); }
+function pause() { if (!playing) return; playing = false; t0 = +scrub.value; playBtn.textContent = "▶ Reproducir"; }
+playBtn.onclick = () => playing ? pause() : play();
+document.getElementById("restart").onclick = () => { pause(); setT(0); };
+scrub.oninput = () => { pause(); setT(+scrub.value); };
+document.fonts.ready.then(() => { setT(0); if (!capture) play(); });
+setT(0);
+</script>
+</body>
+</html>
