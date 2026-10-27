@@ -40,7 +40,7 @@ const args = process.argv.slice(2);
   }
   await browser.close();
   const voice = path.join(__dirname, "audio", "voices.wav");
-  const audioIn = fs.existsSync(voice) ? ["-i", voice, "-c:a", "aac", "-b:a", "192k"] : [];
+  const audioIn = fs.existsSync(voice) ? ["-i", voice, "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-ar", "44100"] : [];
   const r = spawnSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", String(fps), "-i", path.join(frames, "%05d.jpg"),
     ...audioIn, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-movflags", "+faststart", "-shortest", outFile], { stdio: "inherit" });
   fs.rmSync(frames, { recursive: true, force: true });
