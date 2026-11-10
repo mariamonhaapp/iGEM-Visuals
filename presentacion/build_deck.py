@@ -157,7 +157,7 @@ def slide1(prs):
     notes(s, "Sources: Commonwealth Fund (2026), 77.6% of the population covered by public insurance; "
              "Añorve Bailon et al. (2024), ~82% of NSCLC in Mexico diagnosed at a metastatic stage; Geertz (1973), "
              "culture as 'webs of significance' analysed by an interpretive science in search of meaning.\n"
-             "Photos: only people who allowed the use of their image (Photograph 3 pending: add assets/photos/photo3_itzimba.jpg and rebuild).\n"
+             "Photos: only people who allowed the use of their image.\n"
              f"QR: {WIKI_HP}")
 
 
