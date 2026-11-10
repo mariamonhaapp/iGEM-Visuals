@@ -140,17 +140,24 @@ def slide1(prs):
     text(s, 6.1, 7.05, 1.4, 0.3, "Human Practices · wiki", size=8, color=CREAM2, align=PP_ALIGN.CENTER, bold=False)
 
     pic(s, A / "map.png", 8.15, 1.0, 4.4, 4.4)
-    for i in range(3):
+    # photos only of people who allowed the use of their image; a missing photo keeps a labelled placeholder
+    photos = [("photo1_focus_group.jpg", "Photograph 1.", "Focus group iGEM Tec CEM, photo allowed"),
+              ("photo2_pichardo.jpg", "Photograph 2.", "Dr. Luis Dante Pichardo Pimentel, oncologist, photo allowed"),
+              ("photo3_itzimba.jpg", "Photograph 3.", "Dr. Itzimba Hernández, pathologist, allowed")]
+    for i, (f, num, cap) in enumerate(photos):
         x = 7.9 + i * 1.68
-        box(s, x, 5.5, 1.55, 1.35, fill=NAVY, line=CREAM2, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.08, dash=True)
-        icon(s, "user-round", "cream", x + 0.6, 5.62, 0.35)
-        text(s, x + 0.05, 6.02, 1.45, 0.8, ["Interview / focus", "group photo", [("only with image consent", {"size": 8, "bold": False, "color": AMBER})]],
-             size=10, color=CREAM, align=PP_ALIGN.CENTER)
-    text(s, 7.9, 6.95, 5.0, 0.3, "Map: svg-maps/mexico (CC BY 4.0), schematic inset", size=8, color=CREAM2, bold=False)
+        if (A / "photos" / f).exists():
+            pic(s, A / "photos" / f, x, 5.42, 1.55, 1.25)
+        else:
+            box(s, x, 5.42, 1.55, 1.25, fill=NAVY, line=CREAM2, shape=MSO_SHAPE.ROUNDED_RECTANGLE, radius=0.08, dash=True)
+            icon(s, "user-round", "cream", x + 0.6, 5.62, 0.35)
+            text(s, x + 0.05, 6.02, 1.45, 0.5, "Photo pending", size=10, color=CREAM, align=PP_ALIGN.CENTER)
+        text(s, x, 6.7, 1.55, 0.5, [[(num + " ", {"color": AMBER}), (cap, {"bold": False})]], size=7.5, color=CREAM2)
+    text(s, 7.9, 7.2, 5.0, 0.25, "Map: svg-maps/mexico (CC BY 4.0), schematic inset", size=7, color=CREAM2, bold=False)
     notes(s, "Sources: Commonwealth Fund (2026), 77.6% of the population covered by public insurance; "
              "Añorve Bailon et al. (2024), ~82% of NSCLC in Mexico diagnosed at a metastatic stage; Geertz (1973), "
              "culture as 'webs of significance' analysed by an interpretive science in search of meaning.\n"
-             "Photos: replace the three placeholders only with people marked as consenting in the Notion table.\n"
+             "Photos: only people who allowed the use of their image (Photograph 3 pending: add assets/photos/photo3_itzimba.jpg and rebuild).\n"
              f"QR: {WIKI_HP}")
 
 
